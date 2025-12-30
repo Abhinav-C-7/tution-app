@@ -1,10 +1,7 @@
-import React from 'react'
-
+import Container from './Container'
 const BatchCard = () => {
   return (
-    <div className='w-56 h-56 bg-blue-100'>
-      
-    </div>
+  <Container  className='w-56 h-56 bg-blue-100'></Container>
   )
 }
 
