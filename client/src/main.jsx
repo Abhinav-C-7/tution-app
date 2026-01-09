@@ -1,10 +1,15 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import ReactDOM from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router";
+import BatchPage from "./pages/BatchPage.jsx";
+import App from "./App";
 
-import App from './App.jsx'
+const root = document.getElementById("root");
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+ReactDOM.createRoot(root).render(
+  <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<App />} />
+      <Route path="/batches" element={<BatchPage />} />
+    </Routes>
+  </BrowserRouter>,
+);
