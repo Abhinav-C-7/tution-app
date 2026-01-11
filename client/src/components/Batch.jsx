@@ -13,7 +13,7 @@ import GroupsIcon from '@mui/icons-material/Groups';
 
 const Batch = ({ batch }) => {
     return (
-        <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+        <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative', maxWidth: '300px', minWidth: '300px' }}>
             <CardContent>
                 {/* Batch Name & Icon */}
                 <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>

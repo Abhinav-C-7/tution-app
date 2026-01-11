@@ -36,7 +36,7 @@ const BatchPage = () => {
           variant="contained"
           size="large"
           startIcon={<AddIcon />}
-          sx={{ width: { xs: '100%', sm: 'auto' } }}
+          sx={{ width: { xs: '300px', sm: 'auto' } }}
         >
           Create New Batch
         </Button>
