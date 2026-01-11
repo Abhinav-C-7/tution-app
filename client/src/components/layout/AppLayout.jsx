@@ -1,16 +1,32 @@
-import Navigationbar from "./Navigationbar";
-import Container from "../Container";
-import Sidebar from "./Sidebar";
+import { Outlet } from 'react-router-dom';
+import Box from '@mui/material/Box';
+import CssBaseline from '@mui/material/CssBaseline';
+import Toolbar from '@mui/material/Toolbar';
 
-const AppLayout = () => {
+import Navbar from './Navbar';
+import Sidebar from './Sidebar';
+
+export default function AppLayout() {
   return (
-    <div>
-  
-      <Container className="flex gap-24">
+    // 1. The "Parent" Flex Container
+    <Box sx={{ display: 'flex' }}>
+      <CssBaseline />
 
-      </Container>
-    </div>
+      {/* 2. The Components */}
+      <Navbar />
+      <Sidebar />
+
+      {/* 3. The Main Content Area (The "Sponge") */}
+      <Box
+        component="main"
+        sx={{ flexGrow: 1, p: 3, width: '100%' }} // Takes all remaining space
+      >
+        <Toolbar /> {/* ⚠️ CRITICAL: Invisible Spacer so text isn't hidden by Header */}
+
+        {/* 4. The Magic Window for your pages */}
+        <Outlet />
+
+      </Box>
+    </Box>
   );
-};
-
-export default AppLayout;
+}
