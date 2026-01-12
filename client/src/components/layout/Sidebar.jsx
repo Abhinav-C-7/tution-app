@@ -33,7 +33,7 @@ export default function ClippedDrawer({ mobileOpen, handleDrawerTransitionEnd, h
                     <ListItem key={item.text} disablePadding>
                         <ListItemButton
                             // 4. Handle Click: Navigate to the path
-                            onClick={() => navigate(item.path)}
+                            onClick={() => { navigate(item.path); handleDrawerClose() }}
                             // 5. Highlight the active item
                             selected={location.pathname === item.path}
                         >
