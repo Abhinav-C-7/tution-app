@@ -11,8 +11,11 @@ import Batch from '../components/Batch';
 
 import { batches } from '../services/mockData';
 
+import { useNavigate } from 'react-router-dom';
+
 
 const BatchPage = () => {
+  const navigate = useNavigate();
   return (
     <Box>
       {/* 2. Page Header & Add Button */}
@@ -26,7 +29,7 @@ const BatchPage = () => {
         <Typography variant="h4" fontWeight="bold">
           Batches
         </Typography>
-        <Button
+        <Button onClick={() => navigate('../batches/create')}
           variant="contained"
           size="large"
           startIcon={<AddIcon />}

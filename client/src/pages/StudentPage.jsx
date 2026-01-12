@@ -20,7 +20,7 @@ const StudentPage = () => {
                     startIcon={<AddIcon />}
                     sx={{ width: { xs: '300px', sm: 'auto' } }}
                 >
-                    Add New Stude
+                    Add New Student
                 </Button>
             </Stack>
             <Table />
