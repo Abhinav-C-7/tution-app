@@ -10,8 +10,8 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import Groups2Icon from '@mui/icons-material/Groups2';
 import ManIcon from '@mui/icons-material/Man';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom'; // 1. Import Router hooks
 const drawerWidth = 240;
@@ -20,9 +20,9 @@ export default function ClippedDrawer({ mobileOpen, handleDrawerTransitionEnd, h
     const navigate = useNavigate(); // Hook to change pages
     const location = useLocation(); // Hook to know which page is active
     const MENU_ITEMS = [
-        { text: 'Dashboard', icon: <ManIcon />, path: "/" },
-        { text: 'Students', icon: <MailIcon />, path: "/students" },
-        { text: 'Batches', icon: <ManIcon />, path: "/batches" },
+        { text: 'Dashboard', icon: <DashboardIcon />, path: "/" },
+        { text: 'Students', icon: <ManIcon />, path: "/students" },
+        { text: 'Batches', icon: <Groups2Icon />, path: "/batches" },
     ];
 
     const drawer = (
