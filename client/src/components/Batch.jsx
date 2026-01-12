@@ -10,10 +10,12 @@ import Stack from '@mui/material/Stack';
 import ClassIcon from '@mui/icons-material/Class';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import GroupsIcon from '@mui/icons-material/Groups';
+import { useNavigate } from 'react-router-dom';
 
 const Batch = ({ batch }) => {
+    const navigate = useNavigate();
     return (
-        <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative', maxWidth: '300px', minWidth: '300px' }}>
+        <Card sx={{ height: '100%', gap: 2, display: 'flex', flexDirection: 'column', position: 'relative', maxWidth: '300px', minWidth: '300px' }}>
             <CardContent>
                 {/* Batch Name & Icon */}
                 <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
@@ -27,10 +29,7 @@ const Batch = ({ batch }) => {
 
                 {/* Details Section */}
                 <Stack spacing={1.5}>
-                    <Stack direction="row" alignItems="center" spacing={1} color="text.secondary">
-                        <AccessTimeIcon fontSize="small" />
-                        <Typography variant="body2">{batch.days} • {batch.time}</Typography>
-                    </Stack>
+
 
                     <Stack direction="row" alignItems="center" spacing={1} color="text.secondary">
                         <GroupsIcon fontSize="small" />
@@ -50,7 +49,7 @@ const Batch = ({ batch }) => {
             {/* Bottom Actions */}
             <Box sx={{ flexGrow: 1 }} /> {/* Spacer to push buttons to bottom */}
             <CardActions sx={{ p: 2, pt: 0 }}>
-                <Button size="small" variant="outlined" fullWidth>
+                <Button onClick={() => navigate(`/batch/${batch.id}`)} size="small" variant="outlined" fullWidth>
                     View Details
                 </Button>
             </CardActions>
