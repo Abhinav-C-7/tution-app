@@ -1,7 +1,9 @@
 import Table from "../components/Table";
 import { Stack, Typography, Button } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import { useNavigate } from "react-router-dom";
 const StudentPage = () => {
+    const navigate = useNavigate();
     return (
         <div>
             <Stack
@@ -14,7 +16,7 @@ const StudentPage = () => {
                 <Typography variant="h4" fontWeight="bold">
                     Students
                 </Typography>
-                <Button
+                <Button onClick={() => navigate('/students/add')}
                     variant="contained"
                     size="large"
                     startIcon={<AddIcon />}

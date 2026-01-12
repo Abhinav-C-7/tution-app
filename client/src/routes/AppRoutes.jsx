@@ -5,6 +5,7 @@ import Dashboard from "../pages/Dashboard";
 import StudentPage from "../pages/StudentPage";
 import BatchDetails from "../components/BatchDetails";
 import BatchCreationForm from "../components/BatchCreationForm";
+import AddStudent from "../components/AddStudent";
 const AppRoutes = () => {
 
     return (
@@ -15,6 +16,7 @@ const AppRoutes = () => {
                 <Route path="/students" element={<StudentPage />} />
                 <Route path="/batch/:id" element={<BatchDetails />} />
                 <Route path="/batches/create" element={<BatchCreationForm />} />
+                <Route path="/students/add" element={<AddStudent />} />
             </Route>
         </Routes>
     );
