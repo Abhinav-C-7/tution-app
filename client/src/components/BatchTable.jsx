@@ -12,7 +12,6 @@ import Chip from '@mui/material/Chip'; // 1. Import Chip for the Status Badge
 // 2. Define the Columns for Student Data
 const columns = [
     { id: 'name', label: 'Student Name', minWidth: 170 },
-    { id: 'batch', label: 'Batch/Class', minWidth: 150 },
     { id: 'phone', label: 'Phone Number', minWidth: 120 },
     { id: 'parent_name', label: 'Parent Name', minWidth: 170 },
     {
@@ -23,7 +22,23 @@ const columns = [
     },
 ];
 
-import { students as rows } from '../services/mockData';
+function createData(name, phone, parent_name, fee_status) {
+    return { name, phone, parent_name, fee_status };
+}
+
+// 3. Your 10 Student Records
+const rows = [
+    createData('Rahul Sharma', '9876543210', 'Amit Sharma', 'Paid'),
+    createData('Priya Verma', '9123456789', 'Suresh Verma', 'Pending'),
+    createData('Aditya Singh', '9988776655', 'Rajesh Singh', 'Paid'),
+    createData('Sneha Gupta', '8877665544', 'Anil Gupta', 'Overdue'),
+    createData('Mohammed Ayan', '7766554433', 'Imran Khan', 'Paid'),
+    createData('Rohan Mehta', '9898989898', 'Vikram Mehta', 'Pending'),
+    createData('Ishita Patel', '9000011111', 'Jignesh Patel', 'Paid'),
+    createData('Kavya Reddy', '8555522222', 'Satish Reddy', 'Paid'),
+    createData('Arjun Nair', '7000080000', 'Mohan Nair', 'Overdue'),
+    createData('Simran Kaur', '9111122222', 'Harpreet Singh', 'Pending'),
+];
 
 export default function StudentTable() {
     const [page, setPage] = React.useState(0);

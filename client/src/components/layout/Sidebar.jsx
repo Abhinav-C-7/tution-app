@@ -20,12 +20,13 @@ export default function ClippedDrawer({ mobileOpen, handleDrawerTransitionEnd, h
     const navigate = useNavigate(); // Hook to change pages
     const location = useLocation(); // Hook to know which page is active
     const MENU_ITEMS = [
+        { text: 'Dashboard', icon: <ManIcon />, path: "/" },
         { text: 'Students', icon: <MailIcon />, path: "/students" },
         { text: 'Batches', icon: <ManIcon />, path: "/batches" },
     ];
 
     const drawer = (
-        <Box sx={{ overflow: 'auto' }}>
+        <Box sx={{ overflow: 'auto', mt: 2 }}>
             <Toolbar />
             <List>
                 {MENU_ITEMS.map((item) => (

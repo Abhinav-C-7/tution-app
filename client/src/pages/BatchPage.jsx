@@ -9,14 +9,8 @@ import Stack from '@mui/material/Stack';
 import AddIcon from '@mui/icons-material/Add';
 import Batch from '../components/Batch';
 
-// 1. Dummy Data (Replace this with API data later)
-const batches = [
-  { id: 1, name: 'Class 10 - Science', days: 'Mon, Wed, Fri', time: '4:00 PM', students: 24, status: 'Active' },
-  { id: 2, name: 'Class 12 - Math', days: 'Tue, Thu, Sat', time: '6:00 PM', students: 18, status: 'Active' },
-  { id: 3, name: 'JEE Mains Batch', days: 'Daily', time: '5:00 PM', students: 45, status: 'Active' },
-  { id: 4, name: 'NEET Droppers', days: 'Daily', time: '10:00 AM', students: 30, status: 'Full' },
-  { id: 5, name: 'Class 9 - English', days: 'Mon, Thu', time: '3:00 PM', students: 12, status: 'Active' },
-];
+import { batches } from '../services/mockData';
+
 
 const BatchPage = () => {
   return (
