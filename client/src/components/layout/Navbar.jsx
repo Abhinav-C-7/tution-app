@@ -121,14 +121,7 @@ export default function PrimarySearchAppBar({ handleDrawerToggle, drawerWidth })
             open={isMobileMenuOpen}
             onClose={handleMobileMenuClose}
         >
-            <MenuItem>
-                <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-                    <Badge badgeContent={4} color="error">
-                        <MailIcon />
-                    </Badge>
-                </IconButton>
-                <p>Messages</p>
-            </MenuItem>
+
             <MenuItem>
                 <IconButton
                     size="large"
@@ -187,11 +180,6 @@ export default function PrimarySearchAppBar({ handleDrawerToggle, drawerWidth })
 
                     <Box sx={{ flexGrow: 1 }} />
                     <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-                        <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-                            <Badge badgeContent={0} color="error">
-
-                            </Badge>
-                        </IconButton>
                         <IconButton
                             size="large"
                             aria-label="show 17 new notifications"
