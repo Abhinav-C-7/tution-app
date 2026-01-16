@@ -10,6 +10,7 @@ import api from '../api/axios';
 export default function BatchCreationForm() {
     // 1. Setup the hook
     const {
+        reset,
         register,
         handleSubmit,
         formState: { errors }
@@ -90,7 +91,7 @@ export default function BatchCreationForm() {
 
             {/* 5. Buttons (In their own separate row) */}
             <Box sx={{ display: 'flex', justifyContent: 'flex-start', gap: 2, mt: 3 }}>
-                <Button variant="outlined" color="error">Cancel</Button>
+                <Button variant="outlined" onClick={() => reset()} size="large" color="error">Clear</Button>
                 <Button type="submit" variant="contained" size="large">Create Batch</Button>
             </Box>
         </Box>
