@@ -1,0 +1,43 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js" // <--- 1. Fixed the name (was missing "-js")
+  // output = ...                    // <--- 2. Deleted this. Keep it simple (in node_modules).
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL") // <--- 3. Uses the Pooler (Port 6543)
+  directUrl = env("DIRECT_URL") // <--- 4. Uses Direct Connection (Port 5432)
+}
+
+// ==============================
+// YOUR DATA MODELS START HERE
+// ==============================
+
+// 1. The Batch (Class)
+model Batch {
+  id        Int      @id @default(autoincrement())
+  name      String // e.g. "Class 10 Science"
+  fee       Int // e.g. 2500
+  subjects  String? // e.g. "Maths, Physics"
+  schedule  String? // e.g. "Mon-Wed-Fri"
+  createdAt DateTime @default(now())
+
+  students Student[] // Relation to Students
+}
+
+// 2. The Student
+model Student {
+  id          Int       @id @default(autoincrement())
+  name        String
+  phone       String?
+  parentName  String
+  parentPhone String
+  dob         DateTime?
+  joinedAt    DateTime  @default(now())
+  feeStatus   String    @default("Pending")
+
+  batchId Int
+  batch   Batch @relation(fields: [batchId], references: [id])
+}
