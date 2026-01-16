@@ -1,90 +1,98 @@
+import { useForm } from 'react-hook-form'; // 👈 Import this
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
+import api from '../api/axios';
 
 export default function BatchCreationForm() {
+    // 1. Setup the hook
+    const {
+        register,
+        handleSubmit,
+        formState: { errors }
+    } = useForm();
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        // In the future, you will send this data to your backend
-        console.log("Form Submitted");
+    // 2. The Submit Handler (Only runs if validation passes)
+    const onSubmit = async (data) => {
+        // 'data' is automatically an object: { name: "...", fee: "..." }
+        try {
+            const response = await api.post('/batches', {
+                ...data,             // Spread all fields (name, subjects, schedule)
+                fee: parseInt(data.fee) // Ensure fee is a number
+            });
+            alert("Batch Created!");
+            console.log(response.data);
+        } catch (error) {
+            console.error(error);
+            alert("Failed");
+        }
     };
 
     return (
         <Box
             component="form"
-            noValidate
-            autoComplete="off"
-            onSubmit={handleSubmit}
+            onSubmit={handleSubmit(onSubmit)} // 👈 Connects the handler
             sx={{ p: 3, bgcolor: 'background.paper', borderRadius: 2 }}
         >
-            <Typography variant="h6" gutterBottom fontWeight="bold">
-                Create New Batch
-            </Typography>
+            <Typography variant="h6" gutterBottom fontWeight="bold">Create New Batch</Typography>
 
             <Grid container spacing={3}>
-
-                {/* 1. Batch Name - The most important identifier */}
                 <Grid item xs={12}>
                     <TextField
-                        required
                         fullWidth
-                        id="batch-name"
                         label="Batch Name"
-                        placeholder="e.g. Class 10 - Full Bundle"
-                        helperText="Give a name students will recognize"
+                        // 3. Connect Input to React Hook Form
+                        {...register("name", { required: "Batch Name is required" })}
+                        // 4. Show Errors automatically
+                        error={!!errors.name}
+                        helperText={errors.name?.message}
                     />
                 </Grid>
 
-                {/* 2. Subjects Covered (Flexible Text) */}
                 <Grid item xs={12}>
                     <TextField
                         fullWidth
-                        id="batch-subjects"
                         label="Subjects Covered"
-                        placeholder="e.g. Maths, Physics, Chemistry"
-                        helperText="List all subjects included in this batch"
+                        {...register("subjects", { required: "Subjects are required" })}
+                        error={!!errors.subjects}
+                        helperText={errors.subjects?.message}
                     />
                 </Grid>
 
-                {/* 3. Flexible Schedule */}
                 <Grid item xs={12} sm={6}>
                     <TextField
                         fullWidth
-                        id="batch-schedule"
                         label="Schedule / Timings"
-                        placeholder="e.g. Mon-Fri Evenings"
-                        helperText="Or 'Based on Faculty Availability'"
+                        {...register("schedule")} // Optional field (no "required")
                     />
                 </Grid>
 
-                {/* 4. Monthly Fee */}
+                {/* 4. Fee Input (Closes properly) */}
                 <Grid item xs={12} sm={6}>
                     <TextField
-
                         fullWidth
-                        id="batch-fee"
                         label="Fee Amount"
                         type="number"
                         InputProps={{
                             startAdornment: <InputAdornment position="start">₹</InputAdornment>,
                         }}
-                        placeholder="2500"
-                        helperText="Fee amount for this batch"
+                        {...register("fee", { required: "Fee is required", min: 0 })}
+                        error={!!errors.fee}
+                        // This trick prevents the "Jump" by keeping a blank space if no error exists
+                        helperText={errors.fee?.message || " "}
                     />
                 </Grid>
 
+            </Grid> {/* End of main container */}
 
-                {/* 6. Buttons */}
-                <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-                    <Button variant="outlined" color="error">Cancel</Button>
-                    <Button type="submit" variant="contained" size="large">Create Batch</Button>
-                </Grid>
-
-            </Grid>
+            {/* 5. Buttons (In their own separate row) */}
+            <Box sx={{ display: 'flex', justifyContent: 'flex-start', gap: 2, mt: 3 }}>
+                <Button variant="outlined" color="error">Cancel</Button>
+                <Button type="submit" variant="contained" size="large">Create Batch</Button>
+            </Box>
         </Box>
     );
 }

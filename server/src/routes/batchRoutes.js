@@ -1,4 +1,3 @@
-// routes/batchRoutes.js
 const express = require('express');
 const router = express.Router();
 const { getBatches, createBatch } = require('../controllers/batchController');

@@ -1,11 +1,8 @@
-// controllers/studentController.js
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// 1. Get all students
 const getStudents = async (req, res) => {
     try {
-        // Fetch students AND their batch details
         const students = await prisma.student.findMany({
             include: { batch: true }
         });
@@ -15,7 +12,6 @@ const getStudents = async (req, res) => {
     }
 };
 
-// 2. Add a new student
 const addStudent = async (req, res) => {
     const { name, parentName, parentPhone, batchId } = req.body;
 
@@ -25,9 +21,9 @@ const addStudent = async (req, res) => {
                 name,
                 parentName,
                 parentPhone,
-                batchId: parseInt(batchId) // Ensure this is a number
+                batchId: parseInt(batchId)
             }
-        });
+        })
         res.json(newStudent);
     } catch (error) {
         console.log(error);
