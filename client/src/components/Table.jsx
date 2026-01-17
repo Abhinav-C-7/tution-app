@@ -7,25 +7,18 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import Chip from '@mui/material/Chip'; // 1. Import Chip for the Status Badge
+import Chip from '@mui/material/Chip';
 
-// 2. Define the Columns for Student Data
+// 1. Define Columns matching your API JSON Keys exactly
 const columns = [
-    { id: 'name', label: 'Student Name', minWidth: 170 },
-    { id: 'batch', label: 'Batch/Class', minWidth: 150 },
-    { id: 'phone', label: 'Phone Number', minWidth: 120 },
-    { id: 'parent_name', label: 'Parent Name', minWidth: 170 },
-    {
-        id: 'fee_status',
-        label: 'Fee Status',
-        minWidth: 100,
-        align: 'center' // Center the status badge
-    },
+    { id: 'name', label: 'Student Name', minWidth: 150 },
+    { id: 'batch', label: 'Batch/Class', minWidth: 150 }, // Requires special handling
+    { id: 'phone', label: 'Phone', minWidth: 120 },
+    { id: 'parentName', label: 'Parent Name', minWidth: 150 }, // Matches JSON
+    { id: 'feeStatus', label: 'Fee Status', minWidth: 100, align: 'center' } // Matches JSON
 ];
 
-import { students as rows } from '../services/mockData';
-
-export default function StudentTable() {
+export default function StudentTable({ students = [] }) {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
@@ -38,12 +31,12 @@ export default function StudentTable() {
         setPage(0);
     };
 
-    // 4. Helper to choose Color based on Status
+    // Color logic for status chips
     const getStatusColor = (status) => {
         switch (status) {
-            case 'Paid': return 'success';   // Green
-            case 'Pending': return 'warning'; // Orange
-            case 'Overdue': return 'error';   // Red
+            case 'Paid': return 'success';
+            case 'Pending': return 'warning';
+            case 'Overdue': return 'error';
             default: return 'default';
         }
     };
@@ -58,7 +51,7 @@ export default function StudentTable() {
                                 <TableCell
                                     key={column.id}
                                     align={column.align}
-                                    style={{ minWidth: column.minWidth, fontWeight: 'bold', backgroundColor: '#f5f5f5' }} // Made Header Bold
+                                    style={{ minWidth: column.minWidth, fontWeight: 'bold', backgroundColor: '#f5f5f5' }}
                                 >
                                     {column.label}
                                 </TableCell>
@@ -66,30 +59,37 @@ export default function StudentTable() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {rows
+                        {students
                             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                             .map((row) => {
                                 return (
-                                    <TableRow hover role="checkbox" tabIndex={-1} key={row.phone}> {/* Using Phone as Unique Key */}
+                                    // 2. CRITICAL FIX: Use 'row.id' because 'phone' is null in your data
+                                    <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                                         {columns.map((column) => {
                                             const value = row[column.id];
+
                                             return (
                                                 <TableCell key={column.id} align={column.align}>
 
-                                                    {/* 5. Special Logic: If column is "fee_status", show a Chip */}
-                                                    {column.id === 'fee_status' ? (
+                                                    {/* CASE 1: Handle Batch Object */}
+                                                    {column.id === 'batch' ? (
+                                                        // Access the nested .name property safely
+                                                        value?.name || '-'
+
+                                                        /* CASE 2: Handle Fee Status Chip */
+                                                    ) : column.id === 'feeStatus' ? (
                                                         <Chip
-                                                            label={value}
-                                                            color={getStatusColor(value)}
+                                                            label={value || 'Pending'}
+                                                            color={getStatusColor(value || 'Pending')}
                                                             size="small"
                                                             variant="filled"
-                                                            sx={{
-                                                                width: '90px',
-                                                                justifyContent: 'center'
-                                                            }} // "outlined" looks good too
+                                                            sx={{ width: '90px', justifyContent: 'center' }}
                                                         />
+
+                                                        /* CASE 3: Handle Normal Text (check for nulls) */
                                                     ) : (
-                                                        value
+                                                        // If value is null (like phone), show a dash '-'
+                                                        value || '-'
                                                     )}
 
                                                 </TableCell>
@@ -98,13 +98,22 @@ export default function StudentTable() {
                                     </TableRow>
                                 );
                             })}
+
+                        {/* Empty State Message */}
+                        {students.length === 0 && (
+                            <TableRow>
+                                <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
+                                    No students found.
+                                </TableCell>
+                            </TableRow>
+                        )}
                     </TableBody>
                 </Table>
             </TableContainer>
             <TablePagination
-                rowsPerPageOptions={[5, 10, 25, 100]}
+                rowsPerPageOptions={[10, 25, 100]}
                 component="div"
-                count={rows.length}
+                count={students.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onPageChange={handleChangePage}

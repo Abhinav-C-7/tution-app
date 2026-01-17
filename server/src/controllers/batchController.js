@@ -65,5 +65,6 @@ const createBatch = async (req, res) => {
 module.exports = {
     getBatches,
     createBatch,
-    getBatchDetails
+    getBatchDetails,
+
 };

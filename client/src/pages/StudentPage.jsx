@@ -2,8 +2,18 @@ import Table from "../components/Table";
 import { Stack, Typography, Button } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
+import { useEffect, useState } from "react";
 const StudentPage = () => {
     const navigate = useNavigate();
+    const [students, setStudents] = useState([]);
+    useEffect(() => {
+        const fetchStudents = async () => {
+            const response = await api.get('/students');
+            setStudents(response.data);
+        };
+        fetchStudents();
+    }, []);
     return (
         <div>
             <Stack
@@ -25,7 +35,7 @@ const StudentPage = () => {
                     Add New Student
                 </Button>
             </Stack>
-            <Table />
+            <Table students={students} />
         </div>
     );
 }

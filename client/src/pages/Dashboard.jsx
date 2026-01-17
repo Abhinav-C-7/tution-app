@@ -6,14 +6,34 @@ import PeopleIcon from '@mui/icons-material/People';
 import ClassIcon from '@mui/icons-material/Class';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import StatCard from '../components/StatCard';
-import { students, batches } from '../services/mockData';
+import { useEffect, useState } from 'react';
+import api from "../api/axios";
+import CircularProgress from '@mui/material/CircularProgress';
 
 const Dashboard = () => {
-  // Calculate stats
-  const totalStudents = students.length;
-  const totalBatches = batches.length;
-  const pendingFees = students.filter(s => s.fee_status === 'Pending').length;
+  const [stats, setStats] = useState({
+    totalStudents: 0,
+    totalBatches: 0,
+    pendingFees: 0
+  });
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await api.get('/dashboard/stats');
+        setStats(response.data);
+      } catch (error) {
+        console.error('Error fetching dashboard stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
 
+  if (loading) {
+    return <Box sx={{ p: 4, textAlign: 'center' }}><CircularProgress /></Box>;
+  }
   return (
     <Box>
       <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold' }}>
@@ -24,7 +44,7 @@ const Dashboard = () => {
         <Grid item xs={12} sm={6} md={4}>
           <StatCard
             title="Total Students"
-            value={totalStudents}
+            value={stats.totalStudents}
             icon={<PeopleIcon />}
             color="primary"
           />
@@ -32,7 +52,7 @@ const Dashboard = () => {
         <Grid item xs={12} sm={6} md={4}>
           <StatCard
             title="Total Batches"
-            value={totalBatches}
+            value={stats.totalBatches}
             icon={<ClassIcon />}
             color="secondary"
           />
@@ -40,7 +60,7 @@ const Dashboard = () => {
         <Grid item xs={12} sm={6} md={4}>
           <StatCard
             title="Pending Fees"
-            value={pendingFees}
+            value={stats.pendingFees}
             icon={<AttachMoneyIcon />}
             color="warning"
           />
