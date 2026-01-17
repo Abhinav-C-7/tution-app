@@ -17,7 +17,7 @@ import Alert from '@mui/material/Alert';
 
 const Batch = ({ batch }) => {
     const navigate = useNavigate();
-    console.log(batch);
+
     return (
         <Card sx={{ height: '100%', gap: 2, display: 'flex', flexDirection: 'column', position: 'relative', maxWidth: '300px', minWidth: '300px' }}>
             <CardContent>
@@ -53,7 +53,7 @@ const Batch = ({ batch }) => {
             {/* Bottom Actions */}
             <Box sx={{ flexGrow: 1 }} /> {/* Spacer to push buttons to bottom */}
             <CardActions sx={{ p: 2, pt: 0 }}>
-                <Button onClick={() => navigate(`/batch/${batch.id}`)} size="small" variant="outlined" fullWidth>
+                <Button onClick={() => navigate(`/batches/${batch.id}`)} size="small" variant="outlined" fullWidth>
                     View Details
                 </Button>
             </CardActions>

@@ -14,7 +14,7 @@ const AppRoutes = () => {
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/batches" element={<BatchPage />} />
                 <Route path="/students" element={<StudentPage />} />
-                <Route path="/batch/:id" element={<BatchDetails />} />
+                <Route path="/batches/:id" element={<BatchDetails />} />
                 <Route path="/batches/create" element={<BatchCreationForm />} />
                 <Route path="/students/add" element={<AddStudent />} />
             </Route>

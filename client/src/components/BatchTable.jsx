@@ -7,40 +7,23 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import Chip from '@mui/material/Chip'; // 1. Import Chip for the Status Badge
+import Chip from '@mui/material/Chip';
 
-// 2. Define the Columns for Student Data
+// 1. Updated Column IDs to match your Prisma DB fields (camelCase)
 const columns = [
     { id: 'name', label: 'Student Name', minWidth: 170 },
     { id: 'phone', label: 'Phone Number', minWidth: 120 },
-    { id: 'parent_name', label: 'Parent Name', minWidth: 170 },
+    { id: 'parentName', label: 'Parent Name', minWidth: 170 }, // Matches DB field
     {
-        id: 'fee_status',
+        id: 'feeStatus', // Matches DB field
         label: 'Fee Status',
         minWidth: 100,
-        align: 'center' // Center the status badge
+        align: 'center'
     },
 ];
 
-function createData(name, phone, parent_name, fee_status) {
-    return { name, phone, parent_name, fee_status };
-}
-
-// 3. Your 10 Student Records
-const rows = [
-    createData('Rahul Sharma', '9876543210', 'Amit Sharma', 'Paid'),
-    createData('Priya Verma', '9123456789', 'Suresh Verma', 'Pending'),
-    createData('Aditya Singh', '9988776655', 'Rajesh Singh', 'Paid'),
-    createData('Sneha Gupta', '8877665544', 'Anil Gupta', 'Overdue'),
-    createData('Mohammed Ayan', '7766554433', 'Imran Khan', 'Paid'),
-    createData('Rohan Mehta', '9898989898', 'Vikram Mehta', 'Pending'),
-    createData('Ishita Patel', '9000011111', 'Jignesh Patel', 'Paid'),
-    createData('Kavya Reddy', '8555522222', 'Satish Reddy', 'Paid'),
-    createData('Arjun Nair', '7000080000', 'Mohan Nair', 'Overdue'),
-    createData('Simran Kaur', '9111122222', 'Harpreet Singh', 'Pending'),
-];
-
-export default function StudentTable() {
+// 2. Accept 'students' as a prop (default to empty array to prevent crash)
+export default function BatchTable({ students = [] }) {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
@@ -53,7 +36,7 @@ export default function StudentTable() {
         setPage(0);
     };
 
-    // 4. Helper to choose Color based on Status
+    // Helper to choose Color based on Status
     const getStatusColor = (status) => {
         switch (status) {
             case 'Paid': return 'success';   // Green
@@ -73,7 +56,7 @@ export default function StudentTable() {
                                 <TableCell
                                     key={column.id}
                                     align={column.align}
-                                    style={{ minWidth: column.minWidth, fontWeight: 'bold', backgroundColor: '#f5f5f5' }} // Made Header Bold
+                                    style={{ minWidth: column.minWidth, fontWeight: 'bold', backgroundColor: '#f5f5f5' }}
                                 >
                                     {column.label}
                                 </TableCell>
@@ -81,45 +64,53 @@ export default function StudentTable() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {rows
+                        {/* 3. Map over the Real 'students' prop instead of mock 'rows' */}
+                        {students
                             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                            .map((row) => {
+                            .map((student) => {
                                 return (
-                                    <TableRow hover role="checkbox" tabIndex={-1} key={row.phone}> {/* Using Phone as Unique Key */}
+                                    // Use student.id or phone as unique key
+                                    <TableRow hover role="checkbox" tabIndex={-1} key={student.id || student.phone}>
                                         {columns.map((column) => {
-                                            const value = row[column.id];
+                                            const value = student[column.id]; // Access data dynamically
                                             return (
                                                 <TableCell key={column.id} align={column.align}>
-
-                                                    {/* 5. Special Logic: If column is "fee_status", show a Chip */}
-                                                    {column.id === 'fee_status' ? (
+                                                    {/* Status Badge Logic */}
+                                                    {column.id === 'feeStatus' ? (
                                                         <Chip
-                                                            label={value}
-                                                            color={getStatusColor(value)}
+                                                            label={value || 'Pending'} // Default to Pending if null
+                                                            color={getStatusColor(value || 'Pending')}
                                                             size="small"
                                                             variant="filled"
                                                             sx={{
                                                                 width: '90px',
                                                                 justifyContent: 'center'
-                                                            }} // "outlined" looks good too
+                                                            }}
                                                         />
                                                     ) : (
-                                                        value
+                                                        value || '-' // Show dash if data is missing
                                                     )}
-
                                                 </TableCell>
                                             );
                                         })}
                                     </TableRow>
                                 );
                             })}
+                        {/* Empty State Message */}
+                        {students.length === 0 && (
+                            <TableRow>
+                                <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
+                                    No students found in this batch.
+                                </TableCell>
+                            </TableRow>
+                        )}
                     </TableBody>
                 </Table>
             </TableContainer>
             <TablePagination
                 rowsPerPageOptions={[5, 10, 25, 100]}
                 component="div"
-                count={rows.length}
+                count={students.length} // Count comes from props
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onPageChange={handleChangePage}
