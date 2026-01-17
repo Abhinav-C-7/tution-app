@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import api from '../api/axios';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -11,6 +12,8 @@ import ClassIcon from '@mui/icons-material/Class';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import GroupsIcon from '@mui/icons-material/Groups';
 import { useNavigate } from 'react-router-dom';
+import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
 
 const Batch = ({ batch }) => {
     const navigate = useNavigate();
@@ -33,17 +36,17 @@ const Batch = ({ batch }) => {
 
                     <Stack direction="row" alignItems="center" spacing={1} color="text.secondary">
                         <GroupsIcon fontSize="small" />
-                        <Typography variant="body2">{batch.students} Students Enrolled</Typography>
+                        <Typography variant="body2">{batch.students} Students</Typography>
                     </Stack>
                 </Stack>
 
                 {/* Status Chip (Top Right) */}
-                <Chip
+                {/*  <Chip
                     label={batch.status}
                     color={batch.status === 'Full' ? 'error' : 'success'}
                     size="small"
                     sx={{ position: 'absolute', top: 1, right: 16 }}
-                />
+                />*/}
             </CardContent>
 
             {/* Bottom Actions */}

@@ -11,6 +11,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Paper from '@mui/material/Paper';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useForm, Controller } from 'react-hook-form'; // 👈 Import this
 
 // 1. Dummy Batch List (In real app, this comes from your Database)
 const EXISTING_BATCHES = [
@@ -22,15 +23,27 @@ const EXISTING_BATCHES = [
 
 export default function AddStudent() {
     const navigate = useNavigate();
-    // State for the Batch Dropdown
-    const [selectedBatch, setSelectedBatch] = useState('');
+    const {
+        reset,
+        control,
+        register,
+        handleSubmit,
+        formState: { errors }
+    } = useForm();
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        console.log("Student Added");
-        // Add your submission logic here
-    };
-
+    const onSubmit = async (data) => {
+        try {
+            const response = await api.post('/students', {
+                ...data,
+                batch: parseInt(data.batch)
+            });
+            alert("Student Added!");
+            console.log(response.data);
+        } catch (error) {
+            console.error(error);
+            alert("Failed");
+        }
+    }
     return (
         <Box sx={{ maxWidth: '800px', mx: 'auto', mt: 2, mb: 4 }}>
             {/* Page Header with Back Button */}
@@ -49,7 +62,7 @@ export default function AddStudent() {
                     component="form"
                     noValidate
                     autoComplete="off"
-                    onSubmit={handleSubmit}
+                    onSubmit={handleSubmit(onSubmit)}
                 >
                     <Box sx={{ mb: 3 }}>
                         <Typography variant="h6" color="primary.main" fontWeight="600" gutterBottom>
@@ -73,6 +86,9 @@ export default function AddStudent() {
                                 label="Student Full Name"
                                 placeholder="e.g. Rahul Sharma"
                                 variant="outlined"
+                                {...register("name", { required: "Name is required" })}
+                                error={!!errors.name}
+                                helperText={errors.name?.message}
                             />
 
                             {/* 2. Date of Birth */}
@@ -83,6 +99,9 @@ export default function AddStudent() {
                                 label="Date of Birth"
                                 type="date"
                                 InputLabelProps={{ shrink: true }}
+                                {...register("dob", { required: "Date of Birth is required" })}
+                                error={!!errors.dob}
+                                helperText={errors.dob?.message}
                             />
                         </Stack>
 
@@ -98,25 +117,35 @@ export default function AddStudent() {
                                 InputProps={{
                                     startAdornment: <InputAdornment position="start">+91</InputAdornment>,
                                 }}
+                                {...register("phone", { required: "Phone is required" })}
+                                error={!!errors.phone}
+                                helperText={errors.phone?.message}
                             />
 
                             {/* 4. Batch Selection (Dropdown) */}
-                            <TextField
-                                select
-                                required
-                                fullWidth
-                                id="batch-select"
-                                label="Assign Batch"
-                                value={selectedBatch}
-                                onChange={(e) => setSelectedBatch(e.target.value)}
-                                helperText="Select the class this student belongs to"
-                            >
-                                {EXISTING_BATCHES.map((batch) => (
-                                    <MenuItem key={batch.id} value={batch.id}>
-                                        {batch.name}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
+                            <Controller
+                                name="batch" // This is your field name (data.batch)
+                                control={control} // Get this from useForm()
+                                defaultValue=""   // Important: Set default to empty string
+                                rules={{ required: "Batch is required" }} // Validation goes here
+                                render={({ field, fieldState: { error } }) => (
+                                    <TextField
+                                        {...field} // This automatically passes value, onChange, onBlur, ref
+                                        select
+                                        fullWidth
+                                        label="Assign Batch"
+                                        id="batch-select"
+                                        error={!!error}
+                                        helperText={error ? error.message : "Select the class this student belongs to"}
+                                    >
+                                        {EXISTING_BATCHES.map((batch) => (
+                                            <MenuItem key={batch.id} value={batch.id}>
+                                                {batch.name}
+                                            </MenuItem>
+                                        ))}
+                                    </TextField>
+                                )}
+                            />
                         </Stack>
 
                         <Box sx={{ mt: 2, mb: 1 }}>
@@ -161,9 +190,9 @@ export default function AddStudent() {
                                 variant="outlined"
                                 color="inherit"
                                 size="large"
-
+                                onClick={() => reset()}
                             >
-                                Cancel
+                                Clear
                             </Button>
                             <Button
                                 type="submit"
