@@ -3,8 +3,15 @@ const prisma = new PrismaClient();
 
 const getBatches = async (req, res) => {
     try {
-        const batches = await prisma.batch.findMany();
+        const batches = await prisma.batch.findMany({
+            include: {
+                _count: {
+                    select: { students: true }
+                }
+            }
+        });
         res.json(batches);
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to fetch batches' });

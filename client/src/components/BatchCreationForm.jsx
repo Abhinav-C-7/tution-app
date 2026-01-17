@@ -45,6 +45,7 @@ export default function BatchCreationForm() {
                     <TextField
                         fullWidth
                         label="Batch Name"
+
                         // 3. Connect Input to React Hook Form
                         {...register("name", { required: "Batch Name is required" })}
                         // 4. Show Errors automatically

@@ -17,6 +17,7 @@ import Alert from '@mui/material/Alert';
 
 const Batch = ({ batch }) => {
     const navigate = useNavigate();
+    console.log(batch);
     return (
         <Card sx={{ height: '100%', gap: 2, display: 'flex', flexDirection: 'column', position: 'relative', maxWidth: '300px', minWidth: '300px' }}>
             <CardContent>
@@ -36,7 +37,7 @@ const Batch = ({ batch }) => {
 
                     <Stack direction="row" alignItems="center" spacing={1} color="text.secondary">
                         <GroupsIcon fontSize="small" />
-                        <Typography variant="body2">{batch.students} Students</Typography>
+                        <Typography variant="body2">{batch._count?.students} Students</Typography>
                     </Stack>
                 </Stack>
 

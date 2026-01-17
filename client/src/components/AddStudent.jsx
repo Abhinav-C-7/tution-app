@@ -12,16 +12,30 @@ import Paper from '@mui/material/Paper';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useForm, Controller } from 'react-hook-form'; // 👈 Import this
+import api from '../api/axios';
+import { useEffect } from 'react';
 
 // 1. Dummy Batch List (In real app, this comes from your Database)
-const EXISTING_BATCHES = [
-    { id: 1, name: 'Class 10 - Science' },
-    { id: 2, name: 'Class 12 - Maths' },
-    { id: 3, name: 'JEE Mains Batch' },
-    { id: 4, name: 'NEET Droppers' },
-];
+
 
 export default function AddStudent() {
+
+    const [batches, setBatches] = useState([]);
+
+    useEffect(() => {
+        const fetchBatches = async () => {
+            try {
+                const response = await api.get('/batches');
+                setBatches(response.data);
+                console.log(batches);
+            } catch (err) {
+                console.log("Error fetching batches:", err);
+
+            }
+        };
+
+        fetchBatches();
+    }, []);
     const navigate = useNavigate();
     const {
         reset,
@@ -35,7 +49,7 @@ export default function AddStudent() {
         try {
             const response = await api.post('/students', {
                 ...data,
-                batch: parseInt(data.batch)
+                batchId: parseInt(data.batch)
             });
             alert("Student Added!");
             console.log(response.data);
@@ -113,11 +127,12 @@ export default function AddStudent() {
                                 id="student-phone"
                                 label="Student Phone (Optional)"
                                 type="tel"
+                                inputMode='numeric'
                                 placeholder="9876543210"
                                 InputProps={{
                                     startAdornment: <InputAdornment position="start">+91</InputAdornment>,
                                 }}
-                                {...register("phone", { required: "Phone is required" })}
+                                {...register("phone", { required: "Phone is required", pattern: { value: /^[0-9]\d{10}$/, message: "Invalid phone number" } })}
                                 error={!!errors.phone}
                                 helperText={errors.phone?.message}
                             />
@@ -126,7 +141,6 @@ export default function AddStudent() {
                             <Controller
                                 name="batch" // This is your field name (data.batch)
                                 control={control} // Get this from useForm()
-                                defaultValue=""   // Important: Set default to empty string
                                 rules={{ required: "Batch is required" }} // Validation goes here
                                 render={({ field, fieldState: { error } }) => (
                                     <TextField
@@ -138,7 +152,7 @@ export default function AddStudent() {
                                         error={!!error}
                                         helperText={error ? error.message : "Select the class this student belongs to"}
                                     >
-                                        {EXISTING_BATCHES.map((batch) => (
+                                        {batches.map((batch) => (
                                             <MenuItem key={batch.id} value={batch.id}>
                                                 {batch.name}
                                             </MenuItem>
@@ -167,6 +181,9 @@ export default function AddStudent() {
                                 id="parent-name"
                                 label="Parent / Guardian Name"
                                 placeholder="e.g. Amit Sharma"
+                                {...register("parentName", { required: "Parent Name is required" })}
+                                error={!!errors.parentName}
+                                helperText={errors.parentName?.message}
                             />
 
                             {/* 6. Parent Phone (Required) */}
@@ -180,7 +197,9 @@ export default function AddStudent() {
                                 InputProps={{
                                     startAdornment: <InputAdornment position="start">+91</InputAdornment>,
                                 }}
-                                helperText="Used for fee reminders & attendance alerts"
+                                {...register("parentPhone", { required: "Parent Phone is required" })}
+                                error={!!errors.parentPhone}
+                                helperText={errors.parentPhone?.message}
                             />
                         </Stack>
 
