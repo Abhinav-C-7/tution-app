@@ -132,7 +132,7 @@ export default function AddStudent() {
                                 InputProps={{
                                     startAdornment: <InputAdornment position="start">+91</InputAdornment>,
                                 }}
-                                {...register("phone", { required: "Phone is required", pattern: { value: /^[0-9]\d{10}$/, message: "Invalid phone number" } })}
+                                {...register("phone", { required: "Phone is required", pattern: { value: /^[0-9]\d{9}$/, message: "Invalid phone number" } })}
                                 error={!!errors.phone}
                                 helperText={errors.phone?.message}
                             />
@@ -197,7 +197,7 @@ export default function AddStudent() {
                                 InputProps={{
                                     startAdornment: <InputAdornment position="start">+91</InputAdornment>,
                                 }}
-                                {...register("parentPhone", { required: "Parent Phone is required", pattern: { value: /^[0-9]\d{10}$/, message: "Invalid phone number" } })}
+                                {...register("parentPhone", { required: "Parent Phone is required", pattern: { value: /^[0-9]\d{9}$/, message: "Invalid phone number" } })}
                                 error={!!errors.parentPhone}
                                 helperText={errors.parentPhone?.message}
                             />
