@@ -4,6 +4,7 @@ import Typography from '@mui/material/Typography';
 import api from '../api/axios';
 import { useEffect, useState } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
+import BatchTabs from './Tab';
 
 const BatchDetails = () => {
     const { id } = useParams();
@@ -27,6 +28,7 @@ const BatchDetails = () => {
 
     return (
         <div>
+            <BatchTabs />
             <Typography variant="h5" fontWeight="bold" sx={{ mb: 2 }}>
                 {batch.name}
             </Typography>

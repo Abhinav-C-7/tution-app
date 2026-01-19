@@ -60,6 +60,7 @@ const BatchPage = () => {
 
   return (
     <Box>
+
       {/* Page Header & Add Button */}
       <Stack
         direction={{ xs: 'column', sm: 'row' }}
