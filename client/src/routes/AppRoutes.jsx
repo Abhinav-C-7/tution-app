@@ -3,9 +3,12 @@ import BatchPage from "../pages/BatchPage";
 import AppLayout from "../components/layout/AppLayout";
 import Dashboard from "../pages/Dashboard";
 import StudentPage from "../pages/StudentPage";
-import BatchDetails from "../components/BatchDetails";
-import BatchCreationForm from "../components/BatchCreationForm";
+import BatchDetails from "../components/batch/BatchDetails";
+import BatchCreationForm from "../components/batch/BatchCreationForm";
 import AddStudent from "../components/AddStudent";
+import BatchFees from "../components/batch/BatchFees";
+import BatchAttendance from "../components/batch/BatchAttendance";
+import BatchSettings from "../components/batch/BatchSettings";
 const AppRoutes = () => {
 
     return (
@@ -17,6 +20,9 @@ const AppRoutes = () => {
                 <Route path="/batches/:id" element={<BatchDetails />} />
                 <Route path="/batches/create" element={<BatchCreationForm />} />
                 <Route path="/students/add" element={<AddStudent />} />
+                <Route path="/batches/:id/fees" element={<BatchFees />} />
+                <Route path="/batches/:id/attendance" element={<BatchAttendance />} />
+                <Route path="/batches/:id/settings" element={<BatchSettings />} />
             </Route>
         </Routes>
     );

@@ -1,9 +1,9 @@
 import { Tabs, Tab, Box } from '@mui/material';
 import { useState } from 'react';
-
-const BatchTabs = () => {
+import { useNavigate } from 'react-router-dom';
+const BatchTabs = ({ id }) => {
     const [value, setValue] = useState(0);
-
+    const navigate = useNavigate();
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
@@ -15,10 +15,10 @@ const BatchTabs = () => {
                 onChange={handleChange}
                 aria-label="batch management tabs"
             >
-                <Tab label="Overview" />
-                <Tab label="Fees" />
-                <Tab label="Attendance" />
-                <Tab label="Settings" />
+                <Tab label="Overview" onClick={() => navigate(`/batches/${id}`)} />
+                <Tab label="Fees" onClick={() => navigate(`/batches/${id}/fees`)} />
+                <Tab label="Attendance" onClick={() => navigate(`/batches/${id}/attendance`)} />
+                <Tab label="Settings" onClick={() => navigate(`/batches/${id}/settings`)} />
             </Tabs>
         </Box>
     );

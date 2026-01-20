@@ -9,7 +9,7 @@ import Alert from '@mui/material/Alert';
 
 // Icons
 import AddIcon from '@mui/icons-material/Add';
-import Batch from '../components/Batch';
+import Batch from '../components/batch/Batch';
 import { useNavigate } from 'react-router-dom';
 
 // API
