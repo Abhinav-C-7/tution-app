@@ -10,7 +10,7 @@ import TableRow from '@mui/material/TableRow';
 import Chip from '@mui/material/Chip';
 
 // 1. Updated Column IDs to match your Prisma DB fields (camelCase)
-const columns = [
+const defaultColumns = [
     { id: 'name', label: 'Student Name', minWidth: 170 },
     { id: 'phone', label: 'Phone Number', minWidth: 120 },
     { id: 'parentName', label: 'Parent Name', minWidth: 170 }, // Matches DB field
@@ -23,7 +23,7 @@ const columns = [
 ];
 
 // 2. Accept 'students' as a prop (default to empty array to prevent crash)
-export default function BatchTable({ students = [], onRowClick }) {
+export default function BatchTable({ students = [], onRowClick, columns = defaultColumns }) {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
