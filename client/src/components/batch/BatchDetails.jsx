@@ -28,7 +28,7 @@ const BatchDetails = () => {
 
     return (
         <div>
-            <BatchTabs id={id} />
+
             <Typography variant="h5" fontWeight="bold" sx={{ mb: 2 }}>
                 {batch.name}
             </Typography>

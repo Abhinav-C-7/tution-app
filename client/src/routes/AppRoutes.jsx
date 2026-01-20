@@ -9,6 +9,7 @@ import AddStudent from "../components/AddStudent";
 import BatchFees from "../components/batch/BatchFees";
 import BatchAttendance from "../components/batch/BatchAttendance";
 import BatchSettings from "../components/batch/BatchSettings";
+import BatchTabs from "../components/Tab";
 const AppRoutes = () => {
 
     return (
@@ -17,12 +18,14 @@ const AppRoutes = () => {
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/batches" element={<BatchPage />} />
                 <Route path="/students" element={<StudentPage />} />
-                <Route path="/batches/:id" element={<BatchDetails />} />
                 <Route path="/batches/create" element={<BatchCreationForm />} />
                 <Route path="/students/add" element={<AddStudent />} />
-                <Route path="/batches/:id/fees" element={<BatchFees />} />
-                <Route path="/batches/:id/attendance" element={<BatchAttendance />} />
-                <Route path="/batches/:id/settings" element={<BatchSettings />} />
+                <Route element={<BatchTabs />}>
+                    <Route path="/batches/:id" element={<BatchDetails />} />
+                    <Route path="/batches/:id/fees" element={<BatchFees />} />
+                    <Route path="/batches/:id/attendance" element={<BatchAttendance />} />
+                    <Route path="/batches/:id/settings" element={<BatchSettings />} />
+                </Route>
             </Route>
         </Routes>
     );

@@ -22,12 +22,12 @@ const getBatches = async (req, res) => {
     }
 };
 
-// Replaces getBatchStudents
+
 const getBatchDetails = async (req, res) => {
     try {
         const { id } = req.params;
 
-        // 1. Fetch Batch AND Students together
+
         const batch = await prisma.batch.findUnique({
             where: {
                 id: parseInt(id) // 👈 IMPORTANT: Convert string to number
