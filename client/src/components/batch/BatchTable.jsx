@@ -23,7 +23,7 @@ const columns = [
 ];
 
 // 2. Accept 'students' as a prop (default to empty array to prevent crash)
-export default function BatchTable({ students = [] }) {
+export default function BatchTable({ students = [], onRowClick }) {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
@@ -70,7 +70,14 @@ export default function BatchTable({ students = [] }) {
                             .map((student) => {
                                 return (
                                     // Use student.id or phone as unique key
-                                    <TableRow hover role="checkbox" tabIndex={-1} key={student.id || student.phone}>
+                                    <TableRow
+                                        hover
+                                        role="checkbox"
+                                        tabIndex={-1}
+                                        key={student.id || student.phone}
+                                        onClick={() => onRowClick && onRowClick(student)}
+                                        sx={{ cursor: onRowClick ? 'pointer' : 'default' }}
+                                    >
                                         {columns.map((column) => {
                                             const value = student[column.id]; // Access data dynamically
                                             return (
