@@ -95,7 +95,18 @@ const BatchFees = () => {
     };
 
     if (loading) {
-        return <CircularProgress sx={{ mt: 4, ml: 4 }} />;
+        return (
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '80vh' // Takes up 80% of the screen height
+                }}
+            >
+                <CircularProgress />
+            </Box>
+        );
     }
 
     if (!batch) {

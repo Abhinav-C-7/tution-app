@@ -5,6 +5,10 @@ import api from '../../api/axios';
 import { useEffect, useState } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import BatchTabs from '../Tab';
+import Box from '@mui/material/Box';
+import Skeleton from '@mui/material/Skeleton';
+import Stack from '@mui/material/Stack';
+
 
 const BatchDetails = () => {
     const { id } = useParams();
@@ -23,7 +27,16 @@ const BatchDetails = () => {
     }, [id]);
 
     if (!batch) {
-        return <CircularProgress sx={{ mt: 4, ml: 4 }} />;
+        return (
+            <Stack spacing={1} sx={{ m: 4 }}>
+                {/* Simulates the Title */}
+                <Skeleton variant="text" width={200} height={40} />
+                {/* Simulates the Table Rows */}
+                <Skeleton variant="rectangular" height={50} />
+                <Skeleton variant="rectangular" height={50} />
+                <Skeleton variant="rectangular" height={50} />
+            </Stack>
+        );
     }
 
     return (

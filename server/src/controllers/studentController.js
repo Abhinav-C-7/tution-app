@@ -13,12 +13,14 @@ const getStudents = async (req, res) => {
 };
 
 const addStudent = async (req, res) => {
-    const { name, parentName, parentPhone, batchId } = req.body;
+    const { name, dob, phone, parentName, parentPhone, batchId } = req.body;
 
     try {
         const newStudent = await prisma.student.create({
             data: {
                 name,
+                dob: new Date(dob),
+                phone,
                 parentName,
                 parentPhone,
                 batchId: parseInt(batchId)

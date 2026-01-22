@@ -33,16 +33,16 @@ const BatchTabs = () => {
         // 3. Navigate using the ID we grabbed
         switch (newValue) {
             case 0:
-                navigate(`/batches/${id}`);
+                navigate(`/batches/${id}`, { replace: true });
                 break;
             case 1:
-                navigate(`/batches/${id}/fees`); // 👈 Now 'id' is defined!
+                navigate(`/batches/${id}/fees`, { replace: true }); // 👈 Now 'id' is defined!
                 break;
             case 2:
-                navigate(`/batches/${id}/attendance`);
+                navigate(`/batches/${id}/attendance`, { replace: true });
                 break;
             case 3:
-                navigate(`/batches/${id}/settings`);
+                navigate(`/batches/${id}/settings`, { replace: true });
                 break;
             default:
                 break;
