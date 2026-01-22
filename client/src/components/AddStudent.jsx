@@ -22,6 +22,14 @@ export default function AddStudent() {
 
     const [batches, setBatches] = useState([]);
 
+    const date = new Date();
+
+    // 2. Subtract the minimum age (e.g., 3 years)
+    // This physically moves the year back by 3
+    date.setFullYear(date.getFullYear() - 3);
+
+    // 3. Convert to YYYY-MM-DD format for the HTML input
+    const maxDateAllowed = date.toISOString().split('T')[0];
     useEffect(() => {
         const fetchBatches = async () => {
             try {
@@ -112,6 +120,7 @@ export default function AddStudent() {
                                 id="dob"
                                 label="Date of Birth"
                                 type="date"
+                                inputProps={{ max: maxDateAllowed, min: '1980-01-01' }}
                                 InputLabelProps={{ shrink: true }}
                                 {...register("dob", { required: "Date of Birth is required" })}
                                 error={!!errors.dob}
@@ -127,6 +136,9 @@ export default function AddStudent() {
                                 id="student-phone"
                                 label="Student Phone (Optional)"
                                 type="tel"
+                                inputProps={{
+                                    maxLength: 10,
+                                }}
                                 inputMode='numeric'
                                 placeholder="9876543210"
                                 InputProps={{
@@ -190,6 +202,9 @@ export default function AddStudent() {
                             <TextField
                                 required
                                 fullWidth
+                                inputProps={{
+                                    maxLength: 10,
+                                }}
                                 id="parent-phone"
                                 label="Parent Phone Number"
                                 type="tel"
