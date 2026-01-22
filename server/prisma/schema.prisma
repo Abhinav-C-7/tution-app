@@ -9,26 +9,56 @@ datasource db {
 }
 
 model Batch {
-  id        Int      @id @default(autoincrement())
-  name      String
-  fee       Int
-  subjects  String?
-  schedule  String?
-  createdAt DateTime @default(now())
-
-  students Student[]
+  id         Int          @id @default(autoincrement())
+  name       String
+  fee        Int
+  subjects   String?
+  schedule   String?
+  createdAt  DateTime     @default(now())
+  payments   Payment[]
+  students   Student[]
+  attendance Attendance[]
 }
 
 model Student {
-  id          Int       @id @default(autoincrement())
+  id          Int          @id @default(autoincrement())
   name        String
   phone       String?
   parentName  String
   parentPhone String
   dob         DateTime?
-  joinedAt    DateTime  @default(now())
-  feeStatus   String    @default("Pending")
+  joinedAt    DateTime     @default(now())
+  feeStatus   String       @default("Pending")
+  attendances Attendance[]
+
+  payments Payment[]
+  batchId  Int
+  batch    Batch     @relation(fields: [batchId], references: [id])
+}
+
+model Payment {
+  id      Int      @id @default(autoincrement())
+  amount  Int // Amount paid in this transaction
+  date    DateTime @default(now())
+  remarks String? // Optional notes (e.g., 'Cash', 'UPI', 'January Fee')
+
+  studentId Int
+  student   Student @relation(fields: [studentId], references: [id])
 
   batchId Int
   batch   Batch @relation(fields: [batchId], references: [id])
+}
+
+model Attendance {
+  id     Int      @id @default(autoincrement())
+  date   DateTime @default(now())
+  status String // 'Present', 'Absent', 'Late', etc.
+
+  studentId Int
+  student   Student @relation(fields: [studentId], references: [id])
+
+  batchId Int
+  batch   Batch @relation(fields: [batchId], references: [id])
+
+  @@index([batchId, date]) // Optimize for querying by batch and date
 }

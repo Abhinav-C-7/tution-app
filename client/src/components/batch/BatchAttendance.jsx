@@ -9,17 +9,26 @@ import {
     Dialog,
     DialogTitle,
     DialogContent,
+    DialogActions,
+    Button,
     IconButton,
     Divider,
     Stack,
     Chip,
-    LinearProgress
+    LinearProgress,
+    TextField,
+    Checkbox,
+    List,
+    ListItem,
+    ListItemText,
+    ListItemIcon
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import EventBusyIcon from '@mui/icons-material/EventBusy';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import AddTaskIcon from '@mui/icons-material/AddTask';
 
 import api from '../../api/axios';
 import BatchTable from './BatchTable';
@@ -27,22 +36,69 @@ import BatchTable from './BatchTable';
 const BatchAttendance = () => {
     const { id } = useParams();
     const [batch, setBatch] = useState(null);
+    const [attendanceRecords, setAttendanceRecords] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedStudent, setSelectedStudent] = useState(null);
 
+    // Marking Attendance State
+    const [markDialogOpen, setMarkDialogOpen] = useState(false);
+    const [markDate, setMarkDate] = useState(new Date().toISOString().split('T')[0]);
+    const [selectedForAttendance, setSelectedForAttendance] = useState([]); // Array of student IDs present
+
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            const batchRes = await api.get(`/batches/${id}`);
+            const attendanceRes = await api.get(`/attendance/batch/${id}`);
+
+            setBatch(batchRes.data);
+            setAttendanceRecords(attendanceRes.data);
+
+            // Initialize selectedForAttendance with all students (assume all present by default)
+            // or empty? Let's default to all present for convenience?
+            // Actually, keep it empty to force check? No, usually default all present is better.
+            const allStudentIds = batchRes.data.students?.map(s => s.id) || [];
+            setSelectedForAttendance(allStudentIds);
+
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchBatch = async () => {
-            try {
-                const response = await api.get(`/batches/${id}`);
-                setBatch(response.data);
-            } catch (error) {
-                console.error("Error fetching batch:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchBatch();
+        fetchData();
     }, [id]);
+
+    const handleMarkAttendance = async () => {
+        try {
+            // Prepare records: those in selectedForAttendance are 'Present', others 'Absent'
+            const records = batch.students.map(student => ({
+                studentId: student.id,
+                status: selectedForAttendance.includes(student.id) ? 'Present' : 'Absent'
+            }));
+
+            await api.post('/attendance', {
+                batchId: id,
+                date: markDate,
+                records
+            });
+
+            setMarkDialogOpen(false);
+            fetchData(); // Refresh data
+        } catch (error) {
+            console.error("Error marking attendance:", error);
+        }
+    };
+
+    const toggleAttendance = (studentId) => {
+        setSelectedForAttendance(prev =>
+            prev.includes(studentId)
+                ? prev.filter(id => id !== studentId)
+                : [...prev, studentId]
+        );
+    };
 
     if (loading) {
         return <CircularProgress sx={{ mt: 4, ml: 4 }} />;
@@ -52,33 +108,82 @@ const BatchAttendance = () => {
         return <Typography sx={{ m: 4 }}>Batch not found</Typography>;
     }
 
-    // --- Mock Data & Calculation (Since Backend logic for attendance is not fully set) ---
-    // In a real app, this would come from an 'attendance' table joined with students.
-    // For now, we will generate random stats for demonstration.
+    // --- Process Data for Statistics ---
+    // We need to aggregate attendance records per student
+    // attendanceRecords is flat list of { date, status, studentId }
 
-    const studentsWithAttendance = batch.students?.map((student, index) => {
-        // Deterministic pseudo-random based on index (so it doesn't change on render)
-        const totalClasses = 20;
-        const present = Math.floor(15 + (index % 5)); // 15 to 19
-        const absent = totalClasses - present;
-        const percentage = Math.round((present / totalClasses) * 100);
+    // Group records by student
+    const studentStats = {};
+    batch.students.forEach(s => {
+        studentStats[s.id] = { total: 0, present: 0, absent: 0 };
+    });
+
+    // Count unique dates? Or assumes one record per student per day?
+    // Our backend returns all records. 
+    // To get "Total Classes", we should count unique dates that have attendance marked for this batch?
+    // Or just count records per student?
+    // If we mark specific students as Present/Absent, each entry is a class.
+
+    attendanceRecords.forEach(record => {
+        if (!studentStats[record.studentId]) return;
+
+        studentStats[record.studentId].total++;
+        if (record.status === 'Present') {
+            studentStats[record.studentId].present++;
+        } else {
+            studentStats[record.studentId].absent++;
+        }
+    });
+
+    const studentsWithStats = batch.students.map(student => {
+        const stats = studentStats[student.id];
+        const percentage = stats.total > 0
+            ? Math.round((stats.present / stats.total) * 100)
+            : 0;
 
         return {
             ...student,
-            totalClasses,
-            present,
-            absent,
+            totalClasses: stats.total,
+            present: stats.present,
+            absent: stats.absent,
             attendancePercentage: percentage
         };
-    }) || [];
+    });
 
-    const totalStudents = studentsWithAttendance.length || 1; // Avoid divide by zero
+    const totalStudents = studentsWithStats.length || 1;
     const avgAttendance = Math.round(
-        studentsWithAttendance.reduce((acc, curr) => acc + curr.attendancePercentage, 0) / totalStudents
+        studentsWithStats.reduce((acc, curr) => acc + curr.attendancePercentage, 0) / totalStudents
     );
 
-    // --- Statistics for the Header ---
-    const todayPresent = Math.round(totalStudents * 0.85); // Mock: 85% present today
+    // Today's Stats
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todaysRecords = attendanceRecords.filter(r => r.date.startsWith(todayStr) || r.date.includes(todayStr));
+    // Note: Date passing/parsing issues might occur. Ideally convert both to YYYY-MM-DD.
+    // The backend uses `new Date(date)`, so it's stored as timestamp. 
+    // We should compare better.
+    // Simpler: just count records where date matches today's date string if we stored it as string,
+    // but we stored as DateTime. 
+    // For now, let's rely on basic string match or just calc "Total Present" across all time (for overview) 
+    // or fix "Today" logic? 
+    // Let's just calculate "Total Present records" in DB for "Today".
+
+    const isToday = (dateString) => {
+        const d = new Date(dateString);
+        const today = new Date();
+        return d.getDate() === today.getDate() &&
+            d.getMonth() === today.getMonth() &&
+            d.getFullYear() === today.getFullYear();
+    };
+
+    const presentToday = attendanceRecords.filter(r => isToday(r.date) && r.status === 'Present').length;
+    const absentToday = attendanceRecords.filter(r => isToday(r.date) && r.status !== 'Present').length;
+    // Note: absentToday might be incomplete if we haven't marked everyone yet. 
+    // But if we use the bulk tool, it marks everyone.
+
+    // Calculate total distinct class dates for the batch
+    const uniqueDates = new Set(attendanceRecords.map(r => new Date(r.date).toDateString()));
+    const totalClassesConducted = uniqueDates.size;
+
 
     // --- Helper Components ---
     const StatCard = ({ title, value, subtext, icon, color }) => (
@@ -98,7 +203,6 @@ const BatchAttendance = () => {
         </Card>
     );
 
-    // --- Custom Columns for BatchTable ---
     const attendanceColumns = [
         { id: 'name', label: 'Student Name', minWidth: 170 },
         { id: 'totalClasses', label: 'Total Classes', minWidth: 100, align: 'center' },
@@ -109,24 +213,29 @@ const BatchAttendance = () => {
             label: 'Attendance %',
             minWidth: 120,
             align: 'center',
-            format: (value) => `${value}%` // Not used by BatchTable logic directly but good for ref
+            format: (value) => `${value}%`
         }
     ];
 
-    // Wrap row renderer or rely on BatchTable to just render values?
-    // BatchTable renders {value || '-'} or Chip.
-    // For %, it will just render the number. To make it look nice (e.g. bold or colored),
-    // we might need to modify BatchTable more, but for now let's just pass the data.
-    // Actually, I can pass a formatted string in the student object if I want "%" symbol?
-    // Let's modify the map to make 'attendancePercentage' a string "85%"?
-    // No, better to keep number for sorting if we implement it later.
-    // Let's stick to raw numbers for now, maybe add a color indicator in the Dialog.
-
     return (
         <Box sx={{ p: 0 }}>
-            <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>
-                Attendance Overview: {batch.name}
-            </Typography>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+                <Typography variant="h5" fontWeight="bold">
+                    Attendance Overview: {batch.name}
+                </Typography>
+                <Button
+                    variant="contained"
+                    startIcon={<AddTaskIcon />}
+                    onClick={() => {
+                        // Reset selection to all students when opening
+                        const allStudentIds = batch.students?.map(s => s.id) || [];
+                        setSelectedForAttendance(allStudentIds);
+                        setMarkDialogOpen(true);
+                    }}
+                >
+                    Mark Attendance
+                </Button>
+            </Box>
 
             {/* Statistics Section */}
             <Grid container spacing={3} sx={{ mb: 4 }}>
@@ -142,7 +251,7 @@ const BatchAttendance = () => {
                 <Grid item xs={12} sm={6} md={3}>
                     <StatCard
                         title="Present Today"
-                        value={todayPresent}
+                        value={presentToday}
                         subtext="Students checked in"
                         icon={<EventAvailableIcon fontSize="large" />}
                         color="success.main"
@@ -151,7 +260,7 @@ const BatchAttendance = () => {
                 <Grid item xs={12} sm={6} md={3}>
                     <StatCard
                         title="Absent Today"
-                        value={totalStudents - todayPresent}
+                        value={absentToday}
                         subtext="Students absent"
                         icon={<EventBusyIcon fontSize="large" />}
                         color="error.main"
@@ -160,7 +269,7 @@ const BatchAttendance = () => {
                 <Grid item xs={12} sm={6} md={3}>
                     <StatCard
                         title="Total Classes"
-                        value="20"
+                        value={totalClassesConducted}
                         subtext="Conducted so far"
                         icon={<AccessTimeIcon fontSize="large" />}
                         color="info.main"
@@ -173,12 +282,71 @@ const BatchAttendance = () => {
                 Student Attendance Records
             </Typography>
             <BatchTable
-                students={studentsWithAttendance}
+                students={studentsWithStats}
                 columns={attendanceColumns}
                 onRowClick={(student) => setSelectedStudent(student)}
             />
 
-            {/* Student Detail Modal */}
+            {/* Mark Attendance Dialog */}
+            <Dialog
+                open={markDialogOpen}
+                onClose={() => setMarkDialogOpen(false)}
+                maxWidth="sm"
+                fullWidth
+            >
+                <DialogTitle>Mark Attendance</DialogTitle>
+                <DialogContent dividers>
+                    <TextField
+                        label="Date"
+                        type="date"
+                        fullWidth
+                        value={markDate}
+                        onChange={(e) => setMarkDate(e.target.value)}
+                        sx={{ mb: 2, mt: 1 }}
+                        InputLabelProps={{ shrink: true }}
+                    />
+                    <Typography variant="subtitle2" gutterBottom>
+                        Uncheck students who are absent:
+                    </Typography>
+                    <List dense>
+                        {batch.students?.map((student) => {
+                            const isPresent = selectedForAttendance.includes(student.id);
+                            return (
+                                <ListItem
+                                    key={student.id}
+                                    button
+                                    onClick={() => toggleAttendance(student.id)}
+                                >
+                                    <ListItemIcon>
+                                        <Checkbox
+                                            edge="start"
+                                            checked={isPresent}
+                                            tabIndex={-1}
+                                            disableRipple
+                                        />
+                                    </ListItemIcon>
+                                    <ListItemText id={`checkbox-list-label-${student.id}`} primary={student.name} />
+                                    <Chip
+                                        label={isPresent ? "Present" : "Absent"}
+                                        color={isPresent ? "success" : "error"}
+                                        size="small"
+                                        variant="outlined"
+                                    />
+                                </ListItem>
+                            );
+                        })}
+                    </List>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setMarkDialogOpen(false)}>Cancel</Button>
+                    <Button onClick={handleMarkAttendance} variant="contained" color="primary">
+                        Save
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+
+            {/* Student Detail Modal (Read-only view) */}
             <Dialog
                 open={!!selectedStudent}
                 onClose={() => setSelectedStudent(null)}
@@ -190,9 +358,7 @@ const BatchAttendance = () => {
                     <IconButton
                         aria-label="close"
                         onClick={() => setSelectedStudent(null)}
-                        sx={{
-                            color: (theme) => theme.palette.grey[500],
-                        }}
+                        sx={{ color: (theme) => theme.palette.grey[500] }}
                     >
                         <CloseIcon />
                     </IconButton>
@@ -207,9 +373,7 @@ const BatchAttendance = () => {
                                     color={selectedStudent.attendancePercentage >= 75 ? 'success' : 'warning'}
                                 />
                             </Box>
-
                             <Divider />
-
                             <Box>
                                 <Box display="flex" justifyContent="space-between" mb={1}>
                                     <Typography variant="body2" color="textSecondary">Overall Attendance</Typography>
@@ -222,7 +386,6 @@ const BatchAttendance = () => {
                                     sx={{ height: 10, borderRadius: 5 }}
                                 />
                             </Box>
-
                             <Grid container spacing={2}>
                                 <Grid item xs={6}>
                                     <Typography variant="subtitle2" color="textSecondary">Total Classes</Typography>
@@ -241,15 +404,6 @@ const BatchAttendance = () => {
                                     </Typography>
                                 </Grid>
                             </Grid>
-
-                            <Box sx={{ mt: 2, p: 2, bgcolor: 'background.default', borderRadius: 1 }}>
-                                <Typography variant="subtitle2" gutterBottom>
-                                    Recent History
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary" fontStyle="italic">
-                                    Detailed day-by-day logs are not available yet.
-                                </Typography>
-                            </Box>
                         </Stack>
                     )}
                 </DialogContent>
