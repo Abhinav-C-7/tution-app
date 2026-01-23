@@ -95,9 +95,23 @@ const updateBatch = async (req, res) => {
     }
 };
 
+const deleteBatch = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await prisma.batch.delete({
+            where: { id: parseInt(id) }
+        });
+        res.json({ message: "Batch deleted successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to delete batch' });
+    }
+};
+
 module.exports = {
     getBatches,
     createBatch,
     getBatchDetails,
-    updateBatch
+    updateBatch,
+    deleteBatch
 };

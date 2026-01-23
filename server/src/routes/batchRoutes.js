@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { getBatches, createBatch, getBatchDetails, updateBatch } = require('../controllers/batchController');
+const { getBatches, createBatch, getBatchDetails, updateBatch, deleteBatch } = require('../controllers/batchController');
 
 router.get('/', getBatches);
 router.post('/', createBatch);
 router.get('/:id', getBatchDetails);
 router.put('/:id', updateBatch);
+router.delete('/:id', deleteBatch);
 
 module.exports = router;

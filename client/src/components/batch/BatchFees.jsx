@@ -18,6 +18,9 @@ import PercentIcon from '@mui/icons-material/Percent';
 import api from '../../api/axios';
 import BatchTable from './BatchTable';
 
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+
 const BatchFees = () => {
     const { id } = useParams();
     const { searchQuery } = useOutletContext() || { searchQuery: "" };
@@ -30,7 +33,10 @@ const BatchFees = () => {
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [studentPayments, setStudentPayments] = useState([]);
     const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
-    const [discountDialogOpen, setDiscountDialogOpen] = useState(false);
+
+    // Discount Edit State
+    const [isEditingDiscount, setIsEditingDiscount] = useState(false);
+    const [newDiscountValue, setNewDiscountValue] = useState('');
 
     // Forms State
     const [paymentData, setPaymentData] = useState({
@@ -52,11 +58,15 @@ const BatchFees = () => {
             const paymentsRes = await api.get(`/payments/batch/${id}`);
 
             // We need students with their latest data (including discount)
-            // batchRes usually includes students if using getBatchDetails from controller
-            // Check if batchRes.data.students exists, otherwise might need separate call
             setBatch(batchRes.data);
             setStudents(batchRes.data.students || []);
             setPayments(paymentsRes.data);
+
+            // If a student is selected, refresh their data in the modal too
+            if (selectedStudent) {
+                const updatedStudent = (batchRes.data.students || []).find(s => s.id === selectedStudent.id);
+                if (updatedStudent) setSelectedStudent(updatedStudent);
+            }
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -128,9 +138,17 @@ const BatchFees = () => {
 
     const handleUpdateDiscount = async (studentId, newDiscount) => {
         try {
-            await api.put(`/students/${studentId}`, { discount: newDiscount });
+            await api.put(`/students/${studentId}`, { discount: parseInt(newDiscount) || 0 });
             // Optimistic update or refresh
-            setStudents(prev => prev.map(s => s.id === studentId ? { ...s, discount: parseInt(newDiscount) } : s));
+            setStudents(prev => prev.map(s => s.id === studentId ? { ...s, discount: parseInt(newDiscount) || 0 } : s));
+
+            // Also update selected student to reflect change immediately
+            if (selectedStudent && selectedStudent.id === studentId) {
+                setSelectedStudent(prev => ({ ...prev, discount: parseInt(newDiscount) || 0 }));
+            }
+
+            setIsEditingDiscount(false);
+            fetchData(); // Ensure consistency
         } catch (error) {
             console.error("Discount update failed", error);
         }
@@ -152,6 +170,9 @@ const BatchFees = () => {
 
     const handleStudentRowClick = async (student) => {
         setSelectedStudent(student);
+        setIsEditingDiscount(false); // Reset edit mode
+        setNewDiscountValue(student.discount || 0);
+
         // Filter payments for this student locally since we have all payments
         const sPayments = payments.filter(p => p.studentId === student.id);
         setStudentPayments(sPayments);
@@ -261,9 +282,6 @@ const BatchFees = () => {
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
                 <Typography variant="h5" fontWeight="bold">Fee Overview: {batch.name}</Typography>
                 <Stack direction="row" spacing={2}>
-                    <Button variant="outlined" startIcon={<PercentIcon />} onClick={() => setDiscountDialogOpen(true)}>
-                        Manage Discounts
-                    </Button>
                     <Button variant="contained" startIcon={<AddCardIcon />} onClick={() => setPaymentDialogOpen(true)}>
                         Add Payment
                     </Button>
@@ -320,49 +338,6 @@ const BatchFees = () => {
 
             {/* -- Dialogs -- */}
 
-            {/* Discount Dialog */}
-            <Dialog
-                open={discountDialogOpen}
-                onClose={() => setDiscountDialogOpen(false)}
-                maxWidth="md"
-                fullWidth
-            >
-                <DialogTitle>Manage Student Discounts</DialogTitle>
-                <DialogContent dividers>
-                    <Table size="small">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Name</TableCell>
-                                <TableCell>Current Discount</TableCell>
-                                <TableCell align="right">Action</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {students.map(student => (
-                                <TableRow key={student.id}>
-                                    <TableCell>{student.name}</TableCell>
-                                    <TableCell>
-                                        <TextField
-                                            size="small"
-                                            type="number"
-                                            defaultValue={student.discount}
-                                            onBlur={(e) => handleUpdateDiscount(student.id, e.target.value)}
-                                            InputProps={{ startAdornment: <InputAdornment position="start">₹</InputAdornment> }}
-                                            sx={{ width: 120 }}
-                                        />
-                                    </TableCell>
-                                    <TableCell align="right">
-                                        <Typography variant="caption" color="textSecondary">Auto-saves on blur</Typography>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setDiscountDialogOpen(false)}>Close</Button>
-                </DialogActions>
-            </Dialog>
 
             {/* Payment Dialog */}
             <Dialog open={paymentDialogOpen} onClose={() => setPaymentDialogOpen(false)} maxWidth="xs" fullWidth>
@@ -428,7 +403,42 @@ const BatchFees = () => {
                                 <Divider />
                                 <Grid container spacing={2}>
                                     <Grid item xs={6}><Typography variant="subtitle2">Total Expected</Typography><Typography variant="h6">₹{fin.expected}</Typography></Grid>
-                                    <Grid item xs={6}><Typography variant="subtitle2">Discount Applied</Typography><Typography variant="h6" color="success.main">- ₹{selectedStudent.discount}</Typography></Grid>
+                                    <Grid item xs={6}>
+                                        <Typography variant="subtitle2">Discount Applied</Typography>
+                                        <Stack direction="row" alignItems="center" spacing={1}>
+                                            {isEditingDiscount ? (
+                                                <>
+                                                    <TextField
+                                                        size="small"
+                                                        type="number"
+                                                        value={newDiscountValue}
+                                                        onChange={(e) => setNewDiscountValue(e.target.value)}
+                                                        sx={{ width: 100 }}
+                                                        InputProps={{ startAdornment: <InputAdornment position="start">₹</InputAdornment> }}
+                                                    />
+                                                    <IconButton size="small" color="primary" onClick={() => handleUpdateDiscount(selectedStudent.id, newDiscountValue)}>
+                                                        <SaveIcon />
+                                                    </IconButton>
+                                                    <IconButton size="small" color="error" onClick={() => {
+                                                        setIsEditingDiscount(false);
+                                                        setNewDiscountValue(selectedStudent.discount);
+                                                    }}>
+                                                        <CloseIcon />
+                                                    </IconButton>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Typography variant="h6" color="success.main">- ₹{selectedStudent.discount}</Typography>
+                                                    <IconButton size="small" onClick={() => {
+                                                        setIsEditingDiscount(true);
+                                                        setNewDiscountValue(selectedStudent.discount);
+                                                    }}>
+                                                        <EditIcon fontSize="small" />
+                                                    </IconButton>
+                                                </>
+                                            )}
+                                        </Stack>
+                                    </Grid>
                                     <Grid item xs={6}><Typography variant="subtitle2">Total Paid</Typography><Typography variant="h6" color="primary.main">₹{fin.paid}</Typography></Grid>
                                     <Grid item xs={6}><Typography variant="subtitle2">Pending</Typography><Typography variant="h6" color="error.main">₹{fin.pending}</Typography></Grid>
                                 </Grid>

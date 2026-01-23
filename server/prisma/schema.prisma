@@ -37,7 +37,7 @@ model Student {
 
   payments Payment[]
   batchId  Int
-  batch    Batch     @relation(fields: [batchId], references: [id])
+  batch    Batch     @relation(fields: [batchId], references: [id], onDelete: Cascade)
 }
 
 model Payment {
@@ -47,10 +47,10 @@ model Payment {
   remarks String? // Optional notes (e.g., 'Cash', 'UPI', 'January Fee')
 
   studentId Int
-  student   Student @relation(fields: [studentId], references: [id])
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   batchId Int
-  batch   Batch @relation(fields: [batchId], references: [id])
+  batch   Batch @relation(fields: [batchId], references: [id], onDelete: Cascade)
 }
 
 model Attendance {
@@ -59,10 +59,10 @@ model Attendance {
   status String // 'Present', 'Absent', 'Late', etc.
 
   studentId Int
-  student   Student @relation(fields: [studentId], references: [id])
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   batchId Int
-  batch   Batch @relation(fields: [batchId], references: [id])
+  batch   Batch @relation(fields: [batchId], references: [id], onDelete: Cascade)
 
   @@index([batchId, date]) // Optimize for querying by batch and date
 }

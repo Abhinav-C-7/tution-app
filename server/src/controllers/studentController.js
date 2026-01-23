@@ -52,4 +52,17 @@ const updateStudent = async (req, res) => {
     }
 };
 
-module.exports = { getStudents, addStudent, updateStudent };
+const deleteStudent = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await prisma.student.delete({
+            where: { id: parseInt(id) }
+        });
+        res.json({ message: "Student deleted successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to delete student" });
+    }
+};
+
+module.exports = { getStudents, addStudent, updateStudent, deleteStudent };
