@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useOutletContext } from 'react-router-dom';
 import {
     Box,
     Typography,
@@ -35,6 +35,7 @@ import BatchTable from './BatchTable';
 
 const BatchAttendance = () => {
     const { id } = useParams();
+    const { searchQuery } = useOutletContext() || { searchQuery: "" };
     const [batch, setBatch] = useState(null);
     const [attendanceRecords, setAttendanceRecords] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -135,20 +136,22 @@ const BatchAttendance = () => {
         }
     });
 
-    const studentsWithStats = batch.students.map(student => {
-        const stats = studentStats[student.id];
-        const percentage = stats.total > 0
-            ? Math.round((stats.present / stats.total) * 100)
-            : 0;
+    const studentsWithStats = batch.students
+        .filter(s => s.name?.toLowerCase().includes(searchQuery.toLowerCase()))
+        .map(student => {
+            const stats = studentStats[student.id];
+            const percentage = stats.total > 0
+                ? Math.round((stats.present / stats.total) * 100)
+                : 0;
 
-        return {
-            ...student,
-            totalClasses: stats.total,
-            present: stats.present,
-            absent: stats.absent,
-            attendancePercentage: percentage
-        };
-    });
+            return {
+                ...student,
+                totalClasses: stats.total,
+                present: stats.present,
+                absent: stats.absent,
+                attendancePercentage: percentage
+            };
+        });
 
     const totalStudents = studentsWithStats.length || 1;
     const avgAttendance = Math.round(

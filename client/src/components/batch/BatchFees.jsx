@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useOutletContext } from 'react-router-dom';
 import {
     Box, Typography, Grid, Card, CircularProgress, Dialog, DialogTitle,
     DialogContent, DialogActions, Button, IconButton, Divider, Stack, Chip,
@@ -20,6 +20,7 @@ import BatchTable from './BatchTable';
 
 const BatchFees = () => {
     const { id } = useParams();
+    const { searchQuery } = useOutletContext() || { searchQuery: "" };
     const [batch, setBatch] = useState(null);
     const [students, setStudents] = useState([]);
     const [payments, setPayments] = useState([]);
@@ -158,10 +159,12 @@ const BatchFees = () => {
 
     // --- Derived Data for UI ---
     // Recalculate everything for display
-    const processedStudents = students.map(s => {
-        const fin = getStudentFinancials(s);
-        return { ...s, ...fin, feeStatus: fin.status }; // Override feeStatus for display
-    });
+    const processedStudents = students
+        .filter(s => s.name?.toLowerCase().includes(searchQuery.toLowerCase()))
+        .map(s => {
+            const fin = getStudentFinancials(s);
+            return { ...s, ...fin, feeStatus: fin.status }; // Override feeStatus for display
+        });
 
     const totalExpectedBatch = processedStudents.reduce((sum, s) => sum + s.expected, 0);
     const totalCollected = processedStudents.reduce((sum, s) => sum + s.paid, 0);

@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useOutletContext } from 'react-router-dom';
 import BatchTable from './BatchTable';
 import Typography from '@mui/material/Typography';
 import api from '../../api/axios';
@@ -12,6 +12,7 @@ import Stack from '@mui/material/Stack';
 
 const BatchDetails = () => {
     const { id } = useParams();
+    const { searchQuery } = useOutletContext() || { searchQuery: "" };
     const [batch, setBatch] = useState(null);
 
     useEffect(() => {
@@ -47,7 +48,7 @@ const BatchDetails = () => {
             </Typography>
 
 
-            <BatchTable students={batch.students} />
+            <BatchTable students={batch.students?.filter(s => s.name?.toLowerCase().includes(searchQuery.toLowerCase())) || []} />
         </div>
     );
 }

@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useNavigate, Outlet } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import React from 'react';
-import { Tabs, Tab, Box } from '@mui/material';
+import { Tabs, Tab, Box, TextField, InputAdornment } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import { useLocation } from 'react-router-dom';
 
 const BatchTabs = () => {
@@ -21,6 +22,7 @@ const BatchTabs = () => {
     };
 
     const [value, setValue] = React.useState(getCurrentTab());
+    const [searchQuery, setSearchQuery] = useState("");
 
     // Update the active tab when the URL changes (e.g. back button)
     React.useEffect(() => {
@@ -50,17 +52,39 @@ const BatchTabs = () => {
 
     return (
         <>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Tabs value={value} onChange={handleChange}>
                     <Tab label="Overview" />
                     <Tab label="Fees" />
                     <Tab label="Attendance" />
                     <Tab label="Settings" />
                 </Tabs>
+                <TextField
+                    placeholder="Search Student..."
+                    variant="outlined"
+                    size="small"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    sx={{
+                        mr: 2,
+                        width: '250px',
+                        '& .MuiOutlinedInput-root': {
+                            borderRadius: '20px',
+                            backgroundColor: 'background.paper',
+                        }
+                    }}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <SearchIcon color="action" />
+                            </InputAdornment>
+                        ),
+                    }}
+                />
             </Box>
 
             {/* 4. IMPORTANT: This renders the child route (Details, Fees, etc.) */}
-            <Outlet />
+            <Outlet context={{ searchQuery }} />
         </>
     );
 };
