@@ -73,20 +73,7 @@ export default function BatchCreationForm() {
                 </Grid>
 
                 {/* 4. Fee Input (Closes properly) */}
-                <Grid item xs={12} sm={6}>
-                    <TextField
-                        fullWidth
-                        label="Fee Amount"
-                        type="number"
-                        InputProps={{
-                            startAdornment: <InputAdornment position="start">₹</InputAdornment>,
-                        }}
-                        {...register("fee", { required: "Fee is required", min: 0 })}
-                        error={!!errors.fee}
-                        // This trick prevents the "Jump" by keeping a blank space if no error exists
-                        helperText={errors.fee?.message || " "}
-                    />
-                </Grid>
+
 
             </Grid> {/* End of main container */}
 

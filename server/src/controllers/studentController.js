@@ -33,4 +33,23 @@ const addStudent = async (req, res) => {
     }
 };
 
-module.exports = { getStudents, addStudent };
+const updateStudent = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { discount } = req.body;
+
+        const updateData = {};
+        if (discount !== undefined) updateData.discount = parseInt(discount);
+
+        const student = await prisma.student.update({
+            where: { id: parseInt(id) },
+            data: updateData,
+        });
+        res.json(student);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to update student" });
+    }
+};
+
+module.exports = { getStudents, addStudent, updateStudent };

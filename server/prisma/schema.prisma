@@ -9,15 +9,18 @@ datasource db {
 }
 
 model Batch {
-  id         Int          @id @default(autoincrement())
-  name       String
-  fee        Int
-  subjects   String?
-  schedule   String?
-  createdAt  DateTime     @default(now())
-  payments   Payment[]
-  students   Student[]
-  attendance Attendance[]
+  id             Int          @id @default(autoincrement())
+  name           String
+  fee            Int?         @default(0)
+  admissionFee   Int?
+  subjects       String?
+  schedule       String?
+  billingCycle   String? // 'MONTHLY', 'QUARTERLY', 'ONE_TIME', 'CUSTOM'
+  customDuration Int? // In months, used if billingCycle is 'CUSTOM'
+  createdAt      DateTime     @default(now())
+  payments       Payment[]
+  students       Student[]
+  attendance     Attendance[]
 }
 
 model Student {
@@ -29,6 +32,7 @@ model Student {
   dob         DateTime?
   joinedAt    DateTime     @default(now())
   feeStatus   String       @default("Pending")
+  discount    Int          @default(0)
   attendances Attendance[]
 
   payments Payment[]

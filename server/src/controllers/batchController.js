@@ -51,9 +51,17 @@ const getBatchDetails = async (req, res) => {
 
 const createBatch = async (req, res) => {
     try {
-        const { name, fee, subjects, schedule } = req.body;
+        const { name, subjects, schedule, fee, admissionFee, billingCycle, customDuration } = req.body;
         const batch = await prisma.batch.create({
-            data: { name, fee, subjects, schedule },
+            data: {
+                name,
+                subjects,
+                schedule,
+                fee: fee ? parseInt(fee) : 0,
+                admissionFee: admissionFee ? parseInt(admissionFee) : 0,
+                billingCycle,
+                customDuration: customDuration ? parseInt(customDuration) : null
+            },
         });
         res.json(batch);
     } catch (error) {
@@ -62,9 +70,34 @@ const createBatch = async (req, res) => {
     }
 };
 
+const updateBatch = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, subjects, schedule, fee, admissionFee, billingCycle, customDuration } = req.body;
+
+        const updateData = {};
+        if (name) updateData.name = name;
+        if (subjects) updateData.subjects = subjects;
+        if (schedule) updateData.schedule = schedule;
+        if (fee !== undefined) updateData.fee = parseInt(fee);
+        if (admissionFee !== undefined) updateData.admissionFee = parseInt(admissionFee);
+        if (billingCycle) updateData.billingCycle = billingCycle;
+        if (customDuration !== undefined) updateData.customDuration = customDuration ? parseInt(customDuration) : null;
+
+        const batch = await prisma.batch.update({
+            where: { id: parseInt(id) },
+            data: updateData,
+        });
+        res.json(batch);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to update batch' });
+    }
+};
+
 module.exports = {
     getBatches,
     createBatch,
     getBatchDetails,
-
+    updateBatch
 };

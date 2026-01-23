@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Batch" ALTER COLUMN "fee" SET DEFAULT 0;

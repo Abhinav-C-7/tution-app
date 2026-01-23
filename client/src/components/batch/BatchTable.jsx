@@ -80,23 +80,26 @@ export default function BatchTable({ students = [], onRowClick, columns = defaul
                                     >
                                         {columns.map((column) => {
                                             const value = student[column.id]; // Access data dynamically
-                                            return (
-                                                <TableCell key={column.id} align={column.align}>
-                                                    {/* Status Badge Logic */}
-                                                    {column.id === 'feeStatus' ? (
+                                            // Status Badge Logic
+                                            if (column.id === 'feeStatus') {
+                                                return (
+                                                    <TableCell key={column.id} align={column.align}>
                                                         <Chip
-                                                            label={value || 'Pending'} // Default to Pending if null
+                                                            label={value || 'Pending'}
                                                             color={getStatusColor(value || 'Pending')}
                                                             size="small"
                                                             variant="filled"
-                                                            sx={{
-                                                                width: '90px',
-                                                                justifyContent: 'center'
-                                                            }}
+                                                            sx={{ width: '90px', justifyContent: 'center' }}
                                                         />
-                                                    ) : (
-                                                        value || '-' // Show dash if data is missing
-                                                    )}
+                                                    </TableCell>
+                                                );
+                                            }
+
+                                            return (
+                                                <TableCell key={column.id} align={column.align} sx={column.style}>
+                                                    {column.format && value !== undefined && value !== null
+                                                        ? column.format(value)
+                                                        : (value || '-')}
                                                 </TableCell>
                                             );
                                         })}
