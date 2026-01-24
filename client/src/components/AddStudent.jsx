@@ -273,6 +273,16 @@ export default function AddStudent() {
                     </Stack>
                 </Box>
             </Paper>
+            <Snackbar
+                open={openSnackbar}
+                autoHideDuration={2000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity="success" variant="filled" sx={{ width: '100%' }}>
+                    Student Registered Successfully! Redirecting...
+                </Alert>
+            </Snackbar>
         </Box>
     );
 }
