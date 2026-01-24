@@ -15,10 +15,7 @@ const addPayment = async (req, res) => {
             }
         });
 
-        // Also update the student's fee summary if needed? 
-        // For now, the schema has `feeStatus` on Student. We might want to auto-update it?
-        // e.g. if total paid >= batch fee, set to 'Paid'.
-        // Let's do that calculation here for convenience.
+
 
         const batch = await prisma.batch.findUnique({ where: { id: parseInt(batchId) } });
         const batchFee = batch.fee;
@@ -37,7 +34,7 @@ const addPayment = async (req, res) => {
         if (totalPaid >= batchFee) {
             newStatus = 'Paid';
         } else if (totalPaid > 0) {
-            newStatus = 'Partial'; // 'Partial' wasn't in the default enum string but we can use it since it's String type
+            newStatus = 'Partial';
         }
 
         // Update student status
