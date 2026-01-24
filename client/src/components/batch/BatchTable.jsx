@@ -9,13 +9,12 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import Chip from '@mui/material/Chip';
 
-// 1. Updated Column IDs to match your Prisma DB fields (camelCase)
 const defaultColumns = [
     { id: 'name', label: 'Student Name', minWidth: 170 },
     { id: 'phone', label: 'Phone Number', minWidth: 120 },
-    { id: 'parentName', label: 'Parent Name', minWidth: 170 }, // Matches DB field
+    { id: 'parentName', label: 'Parent Name', minWidth: 170 },
     {
-        id: 'feeStatus', // Matches DB field
+        id: 'feeStatus',
         label: 'Fee Status',
         minWidth: 100,
         align: 'center'
@@ -106,7 +105,6 @@ export default function BatchTable({ students = [], onRowClick, columns = defaul
                                     </TableRow>
                                 );
                             })}
-                        {/* Empty State Message */}
                         {students.length === 0 && (
                             <TableRow>
                                 <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
@@ -120,7 +118,7 @@ export default function BatchTable({ students = [], onRowClick, columns = defaul
             <TablePagination
                 rowsPerPageOptions={[5, 10, 25, 100]}
                 component="div"
-                count={students.length} // Count comes from props
+                count={students.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onPageChange={handleChangePage}

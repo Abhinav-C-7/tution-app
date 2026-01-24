@@ -7,24 +7,21 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useLocation } from 'react-router-dom';
 
 const BatchTabs = () => {
-    const { id } = useParams(); // 👈 1. Get the ID from the URL (e.g., "1")
+    const { id } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
 
-    // 2. Determine which tab is active based on the current URL
-    // If URL ends with 'fees', val is 1, etc.
     const getCurrentTab = () => {
         const path = location.pathname;
         if (path.includes('/fees')) return 1;
         if (path.includes('/attendance')) return 2;
         if (path.includes('/settings')) return 3;
-        return 0; // Default to 'Overview' (BatchDetails)
+        return 0;
     };
 
     const [value, setValue] = React.useState(getCurrentTab());
     const [searchQuery, setSearchQuery] = useState("");
 
-    // Update the active tab when the URL changes (e.g. back button)
     React.useEffect(() => {
         setValue(getCurrentTab());
     }, [location.pathname]);
@@ -83,7 +80,6 @@ const BatchTabs = () => {
                 />
             </Box>
 
-            {/* 4. IMPORTANT: This renders the child route (Details, Fees, etc.) */}
             <Outlet context={{ searchQuery }} />
         </>
     );

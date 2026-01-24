@@ -21,28 +21,27 @@ export default function AddStudent() {
 
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [batches, setBatches] = useState([]);
-    const { id } = useParams(); // Get batch ID from URL if present
-    const navigate = useNavigate();
+    const { id } = useParams(); // Get batch ID from URL if present();
     const {
         reset,
         control,
         register,
         handleSubmit,
-        setValue, // We need setValue to programmatically set the field
+        setValue,
         formState: { errors }
     } = useForm({
         defaultValues: {
-            batch: id ? parseInt(id) : "" // Set default value if ID exists
+            batch: id ? parseInt(id) : ""
         }
     });
 
     const date = new Date();
 
-    // 2. Subtract the minimum age (e.g., 3 years)
-    // This physically moves the year back by 3
+
+
     date.setFullYear(date.getFullYear() - 3);
 
-    // 3. Convert to YYYY-MM-DD format for the HTML input
+
     const maxDateAllowed = date.toISOString().split('T')[0];
     useEffect(() => {
         const fetchBatches = async () => {
@@ -59,7 +58,7 @@ export default function AddStudent() {
         fetchBatches();
     }, []);
 
-    // Ensure the batch field is set if 'id' is present (handles cases where defaultValues might miss if param arrives late, though useParams is sync)
+
     useEffect(() => {
         if (id) {
             setValue("batch", parseInt(id));
@@ -73,12 +72,12 @@ export default function AddStudent() {
                 batchId: parseInt(data.batch)
             });
 
-            // 👈 2. Show Success Message
+
             setOpenSnackbar(true);
 
-            // 👈 3. Wait 2 seconds, then Redirect
+
             setTimeout(() => {
-                // If we have an ID from URL, use it. Otherwise use the batch selected in the dropdown.
+
                 const targetBatchId = id || data.batch;
                 navigate(`/batches/${targetBatchId}`);
             }, 2000);
@@ -90,7 +89,6 @@ export default function AddStudent() {
         }
     }
 
-    // Helper to close snackbar if user clicks away
     const handleCloseSnackbar = (event, reason) => {
         if (reason === 'clickaway') {
             return;
@@ -99,7 +97,7 @@ export default function AddStudent() {
     };
     return (
         <Box sx={{ maxWidth: '800px', mx: 'auto', mt: 2, mb: 4 }}>
-            {/* Page Header with Back Button */}
+
             <Stack direction="row" alignItems="center" mb={3}>
                 <IconButton onClick={() => navigate(-1)} sx={{ mr: 2, display: { md: 'none' } }}>
                     <ArrowBackIcon />
@@ -109,7 +107,7 @@ export default function AddStudent() {
                 </Typography>
             </Stack>
 
-            {/* Main Form Card */}
+
             <Paper elevation={3} sx={{ p: 4, borderRadius: 3 }}>
                 <Box
                     component="form"
@@ -129,9 +127,9 @@ export default function AddStudent() {
 
 
                     <Stack spacing={3}>
-                        {/* Row 1: Name and DOB */}
+
                         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                            {/* 1. Student Name */}
+
                             <TextField
                                 required
                                 fullWidth
@@ -144,7 +142,7 @@ export default function AddStudent() {
                                 helperText={errors.name?.message}
                             />
 
-                            {/* 2. Date of Birth */}
+
                             <TextField
                                 required
                                 fullWidth
@@ -159,9 +157,9 @@ export default function AddStudent() {
                             />
                         </Stack>
 
-                        {/* Row 2: Phone and Batch */}
+
                         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                            {/* 3. Student Phone (Optional) */}
+
                             <TextField
                                 fullWidth
                                 id="student-phone"
@@ -180,17 +178,17 @@ export default function AddStudent() {
                                 helperText={errors.phone?.message}
                             />
 
-                            {/* 4. Batch Selection (Dropdown) */}
+
                             <Controller
-                                name="batch" // This is your field name (data.batch)
-                                control={control} // Get this from useForm()
-                                rules={{ required: "Batch is required" }} // Validation goes here
+                                name="batch"
+                                control={control}
+                                rules={{ required: "Batch is required" }}
                                 render={({ field, fieldState: { error } }) => (
                                     <TextField
-                                        {...field} // This automatically passes value, onChange, onBlur, ref
+                                        {...field}
                                         select
                                         fullWidth
-                                        disabled={!!id} // Lock the field if batch ID is provided in URL
+                                        disabled={!!id}
                                         label="Assign Batch"
                                         id="batch-select"
                                         error={!!error}
@@ -216,9 +214,9 @@ export default function AddStudent() {
                             <Divider sx={{ mt: 1.5 }} />
                         </Box>
 
-                        {/* Row 3: Parent Name and Phone */}
+
                         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                            {/* 5. Parent Name */}
+
                             <TextField
                                 required
                                 fullWidth
@@ -230,7 +228,7 @@ export default function AddStudent() {
                                 helperText={errors.parentName?.message}
                             />
 
-                            {/* 6. Parent Phone (Required) */}
+
                             <TextField
                                 required
                                 fullWidth
@@ -250,7 +248,7 @@ export default function AddStudent() {
                             />
                         </Stack>
 
-                        {/* --- BUTTONS --- */}
+
                         <Stack direction="row" justifyContent="flex-start" spacing={2} sx={{ mt: 4 }}>
                             <Button
                                 variant="outlined"

@@ -9,13 +9,12 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import Chip from '@mui/material/Chip';
 
-// 1. Define Columns matching your API JSON Keys exactly
 const columns = [
     { id: 'name', label: 'Student Name', minWidth: 150 },
-    { id: 'batch', label: 'Batch/Class', minWidth: 150 }, // Requires special handling
+    { id: 'batch', label: 'Batch/Class', minWidth: 150 },
     { id: 'phone', label: 'Phone', minWidth: 120 },
-    { id: 'parentName', label: 'Parent Name', minWidth: 150 }, // Matches JSON
-    { id: 'feeStatus', label: 'Fee Status', minWidth: 100, align: 'center' } // Matches JSON
+    { id: 'parentName', label: 'Parent Name', minWidth: 150 },
+    { id: 'feeStatus', label: 'Fee Status', minWidth: 100, align: 'center' }
 ];
 
 export default function StudentTable({ students = [] }) {
@@ -63,7 +62,6 @@ export default function StudentTable({ students = [] }) {
                             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                             .map((row) => {
                                 return (
-                                    // 2. CRITICAL FIX: Use 'row.id' because 'phone' is null in your data
                                     <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                                         {columns.map((column) => {
                                             const value = row[column.id];
@@ -71,12 +69,8 @@ export default function StudentTable({ students = [] }) {
                                             return (
                                                 <TableCell key={column.id} align={column.align}>
 
-                                                    {/* CASE 1: Handle Batch Object */}
                                                     {column.id === 'batch' ? (
-                                                        // Access the nested .name property safely
                                                         value?.name || '-'
-
-                                                        /* CASE 2: Handle Fee Status Chip */
                                                     ) : column.id === 'feeStatus' ? (
                                                         <Chip
                                                             label={value || 'Pending'}
@@ -86,9 +80,7 @@ export default function StudentTable({ students = [] }) {
                                                             sx={{ width: '90px', justifyContent: 'center' }}
                                                         />
 
-                                                        /* CASE 3: Handle Normal Text (check for nulls) */
                                                     ) : (
-                                                        // If value is null (like phone), show a dash '-'
                                                         value || '-'
                                                     )}
 

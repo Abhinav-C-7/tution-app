@@ -32,9 +32,7 @@ const BatchDetails = () => {
     if (!batch) {
         return (
             <Stack spacing={1} sx={{ m: 4 }}>
-                {/* Simulates the Title */}
                 <Skeleton variant="text" width={200} height={40} />
-                {/* Simulates the Table Rows */}
                 <Skeleton variant="rectangular" height={50} />
                 <Skeleton variant="rectangular" height={50} />
                 <Skeleton variant="rectangular" height={50} />
