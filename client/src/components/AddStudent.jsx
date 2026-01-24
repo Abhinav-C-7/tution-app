@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -13,14 +13,28 @@ import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useForm, Controller } from 'react-hook-form'; // 👈 Import this
 import api from '../api/axios';
-import { useEffect } from 'react';
-
-// 1. Dummy Batch List (In real app, this comes from your Database)
-
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+import CheckIcon from '@mui/icons-material/Check';
 
 export default function AddStudent() {
 
+    const [openSnackbar, setOpenSnackbar] = useState(false);
     const [batches, setBatches] = useState([]);
+    const { id } = useParams(); // Get batch ID from URL if present
+    const navigate = useNavigate();
+    const {
+        reset,
+        control,
+        register,
+        handleSubmit,
+        setValue, // We need setValue to programmatically set the field
+        formState: { errors }
+    } = useForm({
+        defaultValues: {
+            batch: id ? parseInt(id) : "" // Set default value if ID exists
+        }
+    });
 
     const date = new Date();
 
@@ -44,14 +58,13 @@ export default function AddStudent() {
 
         fetchBatches();
     }, []);
-    const navigate = useNavigate();
-    const {
-        reset,
-        control,
-        register,
-        handleSubmit,
-        formState: { errors }
-    } = useForm();
+
+    // Ensure the batch field is set if 'id' is present (handles cases where defaultValues might miss if param arrives late, though useParams is sync)
+    useEffect(() => {
+        if (id) {
+            setValue("batch", parseInt(id));
+        }
+    }, [id, setValue]);
 
     const onSubmit = async (data) => {
         try {
@@ -59,13 +72,31 @@ export default function AddStudent() {
                 ...data,
                 batchId: parseInt(data.batch)
             });
-            alert("Student Added!");
+
+            // 👈 2. Show Success Message
+            setOpenSnackbar(true);
+
+            // 👈 3. Wait 2 seconds, then Redirect
+            setTimeout(() => {
+                // If we have an ID from URL, use it. Otherwise use the batch selected in the dropdown.
+                const targetBatchId = id || data.batch;
+                navigate(`/batches/${targetBatchId}`);
+            }, 2000);
+
             console.log(response.data);
         } catch (error) {
             console.error(error);
             alert("Failed");
         }
     }
+
+    // Helper to close snackbar if user clicks away
+    const handleCloseSnackbar = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setOpenSnackbar(false);
+    };
     return (
         <Box sx={{ maxWidth: '800px', mx: 'auto', mt: 2, mb: 4 }}>
             {/* Page Header with Back Button */}
@@ -159,6 +190,7 @@ export default function AddStudent() {
                                         {...field} // This automatically passes value, onChange, onBlur, ref
                                         select
                                         fullWidth
+                                        disabled={!!id} // Lock the field if batch ID is provided in URL
                                         label="Assign Batch"
                                         id="batch-select"
                                         error={!!error}

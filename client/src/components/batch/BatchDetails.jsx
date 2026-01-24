@@ -8,9 +8,11 @@ import BatchTabs from '../Tab';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
-
+import Button from '@mui/material/Button';
+import { useNavigate } from 'react-router-dom';
 
 const BatchDetails = () => {
+    const navigate = useNavigate();
     const { id } = useParams();
     const { searchQuery } = useOutletContext() || { searchQuery: "" };
     const [batch, setBatch] = useState(null);
@@ -42,10 +44,14 @@ const BatchDetails = () => {
 
     return (
         <div>
-
-            <Typography variant="h5" fontWeight="bold" sx={{ mb: 2 }}>
-                {batch.name}
-            </Typography>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Typography variant="h5" fontWeight="bold" sx={{ mb: 2 }}>
+                    {batch.name}
+                </Typography>
+                <Button variant="contained" color="primary" sx={{ mb: 2 }} onClick={() => navigate(`/batches/${id}/add-student`)}>
+                    Add Student
+                </Button>
+            </Box>
 
 
             <BatchTable students={batch.students?.filter(s => s.name?.toLowerCase().includes(searchQuery.toLowerCase())) || []} />

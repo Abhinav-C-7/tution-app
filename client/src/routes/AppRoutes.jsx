@@ -25,6 +25,7 @@ const AppRoutes = () => {
                     <Route path="/batches/:id/fees" element={<BatchFees />} />
                     <Route path="/batches/:id/attendance" element={<BatchAttendance />} />
                     <Route path="/batches/:id/settings" element={<BatchSettings />} />
+                    <Route path="/batches/:id/add-student" element={<AddStudent />} />
                 </Route>
             </Route>
         </Routes>

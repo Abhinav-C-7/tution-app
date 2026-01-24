@@ -19,7 +19,7 @@ import api from '../../api/axios';
 import BatchTable from './BatchTable';
 
 import EditIcon from '@mui/icons-material/Edit';
-import SaveIcon from '@mui/icons-material/Save';
+
 
 const BatchFees = () => {
     const { id } = useParams();
@@ -35,7 +35,7 @@ const BatchFees = () => {
     const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
 
     // Discount Edit State
-    const [isEditingDiscount, setIsEditingDiscount] = useState(false);
+    const [discountDialogOpen, setDiscountDialogOpen] = useState(false);
     const [newDiscountValue, setNewDiscountValue] = useState('');
 
     // Forms State
@@ -147,7 +147,7 @@ const BatchFees = () => {
                 setSelectedStudent(prev => ({ ...prev, discount: parseInt(newDiscount) || 0 }));
             }
 
-            setIsEditingDiscount(false);
+            setDiscountDialogOpen(false);
             fetchData(); // Ensure consistency
         } catch (error) {
             console.error("Discount update failed", error);
@@ -170,7 +170,6 @@ const BatchFees = () => {
 
     const handleStudentRowClick = async (student) => {
         setSelectedStudent(student);
-        setIsEditingDiscount(false); // Reset edit mode
         setNewDiscountValue(student.discount || 0);
 
         // Filter payments for this student locally since we have all payments
@@ -406,37 +405,18 @@ const BatchFees = () => {
                                     <Grid item xs={6}>
                                         <Typography variant="subtitle2">Discount Applied</Typography>
                                         <Stack direction="row" alignItems="center" spacing={1}>
-                                            {isEditingDiscount ? (
-                                                <>
-                                                    <TextField
-                                                        size="small"
-                                                        type="number"
-                                                        value={newDiscountValue}
-                                                        onChange={(e) => setNewDiscountValue(e.target.value)}
-                                                        sx={{ width: 100 }}
-                                                        InputProps={{ startAdornment: <InputAdornment position="start">₹</InputAdornment> }}
-                                                    />
-                                                    <IconButton size="small" color="primary" onClick={() => handleUpdateDiscount(selectedStudent.id, newDiscountValue)}>
-                                                        <SaveIcon />
-                                                    </IconButton>
-                                                    <IconButton size="small" color="error" onClick={() => {
-                                                        setIsEditingDiscount(false);
-                                                        setNewDiscountValue(selectedStudent.discount);
-                                                    }}>
-                                                        <CloseIcon />
-                                                    </IconButton>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Typography variant="h6" color="success.main">- ₹{selectedStudent.discount}</Typography>
-                                                    <IconButton size="small" onClick={() => {
-                                                        setIsEditingDiscount(true);
-                                                        setNewDiscountValue(selectedStudent.discount);
-                                                    }}>
-                                                        <EditIcon fontSize="small" />
-                                                    </IconButton>
-                                                </>
-                                            )}
+                                            <Typography variant="h6" color="success.main">- ₹{selectedStudent.discount}</Typography>
+                                            <Button
+                                                size="small"
+                                                variant="outlined"
+                                                startIcon={<EditIcon />}
+                                                onClick={() => {
+                                                    setNewDiscountValue(selectedStudent.discount || 0);
+                                                    setDiscountDialogOpen(true);
+                                                }}
+                                            >
+                                                Set Discount
+                                            </Button>
                                         </Stack>
                                     </Grid>
                                     <Grid item xs={6}><Typography variant="subtitle2">Total Paid</Typography><Typography variant="h6" color="primary.main">₹{fin.paid}</Typography></Grid>
@@ -456,6 +436,33 @@ const BatchFees = () => {
                         );
                     })()}
                 </DialogContent>
+            </Dialog>
+
+            {/* Discount Dialog */}
+            <Dialog open={discountDialogOpen} onClose={() => setDiscountDialogOpen(false)} maxWidth="xs" fullWidth>
+                <DialogTitle>Set Discount</DialogTitle>
+                <DialogContent>
+                    <Stack spacing={2} sx={{ mt: 1 }}>
+                        <TextField
+                            label="Discount Amount (₹)"
+                            type="number"
+                            fullWidth
+                            value={newDiscountValue}
+                            onChange={(e) => setNewDiscountValue(e.target.value)}
+                            InputProps={{ startAdornment: <InputAdornment position="start">₹</InputAdornment> }}
+                            autoFocus
+                        />
+                    </Stack>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setDiscountDialogOpen(false)}>Cancel</Button>
+                    <Button
+                        onClick={() => handleUpdateDiscount(selectedStudent?.id, newDiscountValue)}
+                        variant="contained"
+                    >
+                        Save
+                    </Button>
+                </DialogActions>
             </Dialog>
         </Box>
     );
