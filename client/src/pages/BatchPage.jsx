@@ -25,6 +25,7 @@ const BatchPage = () => {
         const response = await api.get('/batches');
         setBatches(response.data);
       } catch (err) {
+        console.log(batches)
         console.error("Error fetching batches:", err);
         setError("Failed to load batches. Please try again.");
       } finally {
@@ -52,7 +53,9 @@ const BatchPage = () => {
   }
 
   return (
+
     <Box>
+
 
       <Stack
         direction={{ xs: 'column', sm: 'row' }}
