@@ -12,22 +12,18 @@ model Batch {
   id   Int    @id @default(autoincrement())
   name String
 
-  // "defaultFee" acts as a template. When you create a new cycle, 
-  // you can pre-fill the amount input with this value.
-  defaultFee   Int? @default(0)
   admissionFee Int? @default(0)
 
-  subjects       String?
-  schedule       String?
-  billingCycle   String? // 'MONTHLY', 'QUARTERLY', 'ONE_TIME', 'CUSTOM'
-  customDuration Int? // In months
-  createdAt      DateTime @default(now())
+  subjects String?
+  schedule String?
+
+  createdAt DateTime @default(now())
 
   // Relations
-  students   Student[]
-  feeCycles  FeeCycle[] // 👈 Tracks history of all fee requests (Jan, Feb...)
-  payments   Payment[]
-  attendance Attendance[]
+  students    Student[]
+  feeRequests FeeRequest[] // 👈 UPDATED: Tracks history of all fee requests (Jan, Feb...)
+  payments    Payment[]
+  attendance  Attendance[]
 }
 
 model Student {
@@ -39,7 +35,7 @@ model Student {
   dob         DateTime?
   joinedAt    DateTime  @default(now())
 
-  // Note: Global discount. Can be applied when generating a new FeeCycle.
+  // Note: Global discount. Can be applied when generating a new FeeRequest.
   discount Int @default(0)
 
   batchId Int
@@ -54,10 +50,10 @@ model Student {
 // ---------------------------------------------------------
 // NEW: Represents a "Bill" or "Request" (e.g., January 2026)
 // ---------------------------------------------------------
-model FeeCycle {
+model FeeRequest {
   id        Int      @id @default(autoincrement())
   name      String // e.g. "January Fees" or "Exam Fees"
-  amount    Int // The standard amount for this cycle
+  amount    Int // The standard amount for this request
   dueDate   DateTime
   createdAt DateTime @default(now())
 
@@ -65,12 +61,12 @@ model FeeCycle {
   batch   Batch @relation(fields: [batchId], references: [id], onDelete: Cascade)
 
   // Links
-  studentFees StudentFee[] // The specific status of every student for this cycle
-  payments    Payment[] // Optional: Know which cycle a payment belongs to
+  studentFees StudentFee[] // The specific status of every student for this request
+  payments    Payment[] // Optional: Know which request a payment belongs to
 }
 
 // ---------------------------------------------------------
-// NEW: Represents the Status of ONE student for ONE cycle
+// NEW: Represents the Status of ONE student for ONE request
 // ---------------------------------------------------------
 model StudentFee {
   id         Int     @id @default(autoincrement())
@@ -81,10 +77,11 @@ model StudentFee {
   studentId Int
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-  feeCycleId Int
-  feeCycle   FeeCycle @relation(fields: [feeCycleId], references: [id], onDelete: Cascade)
+  // 👈 UPDATED: Renamed relation
+  feeRequestId Int
+  feeRequest   FeeRequest @relation(fields: [feeRequestId], references: [id], onDelete: Cascade)
 
-  @@unique([studentId, feeCycleId]) // Prevent duplicate records for same student/cycle
+  @@unique([studentId, feeRequestId]) // Prevent duplicate records for same student/request
 }
 
 model Payment {
@@ -100,8 +97,8 @@ model Payment {
   batch   Batch @relation(fields: [batchId], references: [id], onDelete: Cascade)
 
   // Optional: If you want to link a payment explicitly to "January Fees"
-  feeCycleId Int?
-  feeCycle   FeeCycle? @relation(fields: [feeCycleId], references: [id])
+  feeRequestId Int?
+  feeRequest   FeeRequest? @relation(fields: [feeRequestId], references: [id])
 }
 
 model Attendance {

@@ -21,8 +21,7 @@ export default function BatchCreationForm() {
         // 'data' is automatically an object: { name: "...", fee: "..." }
         try {
             const response = await api.post('/batches', {
-                ...data,             // Spread all fields (name, subjects, schedule)
-                fee: parseInt(data.fee) // Ensure fee is a number
+                ...data         // Spread all fields (name, subjects, schedule  
             });
             alert("Batch Created!");
             console.log(response.data);

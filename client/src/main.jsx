@@ -10,13 +10,18 @@ import theme from "./theme";
 import { ThemeProvider } from "@mui/material/styles";
 import { CssBaseline } from "@mui/material";
 
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+
 const root = document.getElementById("root");
 
 ReactDOM.createRoot(root).render(
   <BrowserRouter>
     <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <AppRoutes />
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <CssBaseline />
+        <AppRoutes />
+      </LocalizationProvider>
     </ThemeProvider>
   </BrowserRouter>,
 );

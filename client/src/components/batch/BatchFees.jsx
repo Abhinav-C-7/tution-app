@@ -14,11 +14,14 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AddCardIcon from '@mui/icons-material/AddCard';
 import SettingsIcon from '@mui/icons-material/Settings';
 import PercentIcon from '@mui/icons-material/Percent';
-
+import BatchFeeRequest from './BatchFeeRequest';
 import api from '../../api/axios';
 import BatchTable from './BatchTable';
 
 import EditIcon from '@mui/icons-material/Edit';
+
+
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 
 const BatchFees = () => {
@@ -44,10 +47,8 @@ const BatchFees = () => {
     });
 
     const [feeSetupData, setFeeSetupData] = useState({
-        billingCycle: 'MONTHLY',
-        customDuration: 6,
         fee: '',
-        admissionFee: 0
+        deadline: null
     });
 
     // --- Data Fetching ---
@@ -121,20 +122,7 @@ const BatchFees = () => {
     };
 
     // --- Actions ---
-    const handleFeeSetupSubmit = async () => {
-        try {
-            await api.put(`/batches/${id}`, {
-                ...feeSetupData,
-                fee: parseInt(feeSetupData.fee),
-                admissionFee: parseInt(feeSetupData.admissionFee),
-                customDuration: feeSetupData.billingCycle === 'CUSTOM' ? parseInt(feeSetupData.customDuration) : null
-            });
-            fetchData();
-        } catch (error) {
-            console.error("Setup failed", error);
-            alert("Failed to save fee structure");
-        }
-    };
+
 
     const handleUpdateDiscount = async (studentId, newDiscount) => {
         try {
@@ -210,56 +198,7 @@ const BatchFees = () => {
     // 1. Fee Setup Mode
     if (!batch.fee || batch.fee === 0) {
         return (
-            <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
-                <Card sx={{ p: 4, width: '100%', maxWidth: 600 }}>
-                    <Typography variant="h5" gutterBottom mb={3} fontWeight="bold">Setup Fee Structure</Typography>
-                    <Stack spacing={3}>
-                        <FormControl fullWidth>
-                            <InputLabel>Billing Cycle</InputLabel>
-                            <Select
-                                value={feeSetupData.billingCycle}
-                                label="Billing Cycle"
-                                onChange={(e) => setFeeSetupData({ ...feeSetupData, billingCycle: e.target.value })}
-                            >
-                                <MenuItem value="MONTHLY">Monthly</MenuItem>
-                                <MenuItem value="QUARTERLY">Quarterly</MenuItem>
-                                <MenuItem value="ONE_TIME">One Time</MenuItem>
-                                <MenuItem value="CUSTOM">Custom (Every X Months)</MenuItem>
-                            </Select>
-                        </FormControl>
-
-                        {feeSetupData.billingCycle === 'CUSTOM' && (
-                            <TextField
-                                label="Billing Duration (Months)"
-                                type="number"
-                                value={feeSetupData.customDuration}
-                                onChange={(e) => setFeeSetupData({ ...feeSetupData, customDuration: e.target.value })}
-                            />
-                        )}
-
-                        <TextField
-                            label="Total Fee Amount (Per Cycle)"
-                            type="number"
-                            value={feeSetupData.fee}
-                            onChange={(e) => setFeeSetupData({ ...feeSetupData, fee: e.target.value })}
-                            InputProps={{ startAdornment: <InputAdornment position="start">₹</InputAdornment> }}
-                        />
-
-                        <TextField
-                            label="Admission Fee (One Time)"
-                            type="number"
-                            value={feeSetupData.admissionFee}
-                            onChange={(e) => setFeeSetupData({ ...feeSetupData, admissionFee: e.target.value })}
-                            InputProps={{ startAdornment: <InputAdornment position="start">₹</InputAdornment> }}
-                            helperText="Optional"
-                        />
-
-                        <Button variant="contained" size="large" onClick={handleFeeSetupSubmit}>
-                            Save Fee Structure
-                        </Button>
-                    </Stack>
-                </Card>
-            </Box>
+            <BatchFeeRequest />
         );
     }
 
