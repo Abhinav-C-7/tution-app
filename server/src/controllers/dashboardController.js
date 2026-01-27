@@ -9,8 +9,8 @@ const getDashboardStats = async (req, res) => {
         const [studentCount, batchCount, pendingCount] = await Promise.all([
             prisma.student.count(),
             prisma.batch.count(),
-            prisma.student.count({
-                where: { feeStatus: 'Pending' }
+            prisma.studentFee.count({
+                where: { status: 'Pending' }
             })
         ]);
 
