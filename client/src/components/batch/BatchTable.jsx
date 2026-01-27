@@ -96,8 +96,8 @@ export default function BatchTable({ students = [], onRowClick, columns = defaul
 
                                             return (
                                                 <TableCell key={column.id} align={column.align} sx={column.style}>
-                                                    {column.format && value !== undefined && value !== null
-                                                        ? column.format(value)
+                                                    {column.format
+                                                        ? column.format(value, student)
                                                         : (value || '-')}
                                                 </TableCell>
                                             );

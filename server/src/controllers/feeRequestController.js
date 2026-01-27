@@ -47,6 +47,35 @@ const createFeeRequest = async (req, res) => {
     }
 };
 
+// @desc    Get all fee requests for a batch
+// @route   GET /api/feerequests/batch/:batchId
+// @access  Public
+const getFeeRequestsByBatch = async (req, res) => {
+    const { batchId } = req.params;
+
+    try {
+        const feeRequests = await prisma.feeRequest.findMany({
+            where: { batchId: parseInt(batchId) },
+            include: {
+                studentFees: {
+                    include: {
+                        student: {
+                            select: { id: true, name: true, parentName: true, phone: true }
+                        }
+                    }
+                }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        res.json(feeRequests);
+    } catch (error) {
+        console.error("Error fetching fee requests:", error);
+        res.status(500).json({ message: 'Server error while fetching fee requests.' });
+    }
+};
+
 module.exports = {
     createFeeRequest,
+    getFeeRequestsByBatch
 };

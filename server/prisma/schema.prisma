@@ -97,7 +97,7 @@ model Payment {
   batch   Batch @relation(fields: [batchId], references: [id], onDelete: Cascade)
 
   // Optional: If you want to link a payment explicitly to "January Fees"
-  feeRequestId Int?
+  feeRequestId Int
   feeRequest   FeeRequest? @relation(fields: [feeRequestId], references: [id])
 }
 
