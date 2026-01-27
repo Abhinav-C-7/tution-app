@@ -82,7 +82,7 @@ export default function AddStudent() {
                 navigate(`/batches/${targetBatchId}`);
             }, 2000);
 
-            console.log(response.data);
+
         } catch (error) {
             console.error(error);
             alert("Failed");
