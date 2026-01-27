@@ -30,14 +30,14 @@ const getBatchDetails = async (req, res) => {
 
         const batch = await prisma.batch.findUnique({
             where: {
-                id: parseInt(id) // 👈 IMPORTANT: Convert string to number
+                id: parseInt(id)
             },
             include: {
-                students: true   // 👈 The "Backpack": Include the student list
+                students: true
             }
         });
 
-        // 2. Handle case where batch doesn't exist
+        //  Handle case where batch doesn't exist
         if (!batch) {
             return res.status(404).json({ error: 'Batch not found' });
         }
@@ -51,16 +51,13 @@ const getBatchDetails = async (req, res) => {
 
 const createBatch = async (req, res) => {
     try {
-        const { name, subjects, schedule, fee, admissionFee, billingCycle, customDuration } = req.body;
+        const { name, subjects, schedule } = req.body;
         const batch = await prisma.batch.create({
             data: {
                 name,
                 subjects,
                 schedule,
-                fee: fee ? parseInt(fee) : 0,
-                admissionFee: admissionFee ? parseInt(admissionFee) : 0,
-                billingCycle,
-                customDuration: customDuration ? parseInt(customDuration) : null
+
             },
         });
         res.json(batch);

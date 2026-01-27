@@ -9,54 +9,102 @@ datasource db {
 }
 
 model Batch {
-  id             Int          @id @default(autoincrement())
-  name           String
-  fee            Int?         @default(0)
-  admissionFee   Int?
-  subjects       String?
-  schedule       String?
-  billingCycle   String? // 'MONTHLY', 'QUARTERLY', 'ONE_TIME', 'CUSTOM'
-  customDuration Int? // In months, used if billingCycle is 'CUSTOM'
-  createdAt      DateTime     @default(now())
-  payments       Payment[]
-  students       Student[]
-  attendance     Attendance[]
+  id   Int    @id @default(autoincrement())
+  name String
+
+  admissionFee Int? @default(0)
+
+  subjects String?
+  schedule String?
+
+  createdAt DateTime @default(now())
+
+  // Relations
+  students    Student[]
+  feeRequests FeeRequest[] // 👈 UPDATED: Tracks history of all fee requests (Jan, Feb...)
+  payments    Payment[]
+  attendance  Attendance[]
 }
 
 model Student {
-  id          Int          @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   name        String
   phone       String?
   parentName  String
   parentPhone String
   dob         DateTime?
-  joinedAt    DateTime     @default(now())
-  feeStatus   String       @default("Pending")
-  discount    Int          @default(0)
-  attendances Attendance[]
+  joinedAt    DateTime  @default(now())
 
-  payments Payment[]
-  batchId  Int
-  batch    Batch     @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  // Note: Global discount. Can be applied when generating a new FeeRequest.
+  discount Int @default(0)
+
+  batchId Int
+  batch   Batch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  // Relations
+  feeRecords  StudentFee[] // 👈 History of status (Jan: Paid, Feb: Pending)
+  payments    Payment[]
+  attendances Attendance[]
+}
+
+// ---------------------------------------------------------
+// NEW: Represents a "Bill" or "Request" (e.g., January 2026)
+// ---------------------------------------------------------
+model FeeRequest {
+  id        Int      @id @default(autoincrement())
+  name      String // e.g. "January Fees" or "Exam Fees"
+  amount    Int // The standard amount for this request
+  dueDate   DateTime
+  createdAt DateTime @default(now())
+
+  batchId Int
+  batch   Batch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  // Links
+  studentFees StudentFee[] // The specific status of every student for this request
+  payments    Payment[] // Optional: Know which request a payment belongs to
+}
+
+// ---------------------------------------------------------
+// NEW: Represents the Status of ONE student for ONE request
+// ---------------------------------------------------------
+model StudentFee {
+  id         Int     @id @default(autoincrement())
+  status     String  @default("Pending") // 'Pending', 'Paid', 'Partial'
+  amountPaid Int     @default(0) // Helpful if they pay in 2 installments
+  remarks    String? // e.g. "Late fee waived"
+
+  studentId Int
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  // 👈 UPDATED: Renamed relation
+  feeRequestId Int
+  feeRequest   FeeRequest @relation(fields: [feeRequestId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, feeRequestId]) // Prevent duplicate records for same student/request
 }
 
 model Payment {
   id      Int      @id @default(autoincrement())
-  amount  Int // Amount paid in this transaction
+  amount  Int
   date    DateTime @default(now())
-  remarks String? // Optional notes (e.g., 'Cash', 'UPI', 'January Fee')
+  remarks String? // e.g., 'Cash', 'UPI'
 
   studentId Int
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   batchId Int
   batch   Batch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  // Optional: If you want to link a payment explicitly to "January Fees"
+  feeRequestId Int
+  feeRequest   FeeRequest? @relation(fields: [feeRequestId], references: [id])
 }
 
 model Attendance {
   id     Int      @id @default(autoincrement())
   date   DateTime @default(now())
-  status String // 'Present', 'Absent', 'Late', etc.
+  status String // 'Present', 'Absent', 'Late'
 
   studentId Int
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
@@ -64,5 +112,5 @@ model Attendance {
   batchId Int
   batch   Batch @relation(fields: [batchId], references: [id], onDelete: Cascade)
 
-  @@index([batchId, date]) // Optimize for querying by batch and date
+  @@index([batchId, date])
 }

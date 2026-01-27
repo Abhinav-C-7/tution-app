@@ -3,7 +3,7 @@ const prisma = new PrismaClient();
 
 const addPayment = async (req, res) => {
     try {
-        const { studentId, batchId, amount, date, remarks } = req.body;
+        const { studentId, batchId, amount, date, remarks, feeRequestId } = req.body;
 
         const payment = await prisma.payment.create({
             data: {
@@ -11,42 +11,61 @@ const addPayment = async (req, res) => {
                 date: new Date(date),
                 remarks,
                 studentId: parseInt(studentId),
-                batchId: parseInt(batchId)
+                batchId: parseInt(batchId),
+                feeRequestId: parseInt(feeRequestId)
             }
         });
 
-        // Also update the student's fee summary if needed? 
-        // For now, the schema has `feeStatus` on Student. We might want to auto-update it?
-        // e.g. if total paid >= batch fee, set to 'Paid'.
-        // Let's do that calculation here for convenience.
 
-        const batch = await prisma.batch.findUnique({ where: { id: parseInt(batchId) } });
-        const batchFee = batch.fee;
 
-        // Calculate total payments for this student
-        const allPayments = await prisma.payment.findMany({
+        // Update StudentFee status for this specific request
+        // First find the StudentFee record
+        const studentFeeRecord = await prisma.studentFee.findUnique({
             where: {
-                studentId: parseInt(studentId),
-                batchId: parseInt(batchId)
+                studentId_feeRequestId: {
+                    studentId: parseInt(studentId),
+                    feeRequestId: parseInt(feeRequestId)
+                }
             }
         });
 
-        const totalPaid = allPayments.reduce((sum, p) => sum + p.amount, 0);
+        if (studentFeeRecord) {
+            // Recalculate total paid for this REQUEST
+            // We need to fetch payments linked to this feeRequestId
+            const requestPayments = await prisma.payment.findMany({
+                where: {
+                    studentId: parseInt(studentId),
+                    feeRequestId: parseInt(feeRequestId)
+                }
+            });
 
-        let newStatus = 'Pending';
-        if (totalPaid >= batchFee) {
-            newStatus = 'Paid';
-        } else if (totalPaid > 0) {
-            newStatus = 'Partial'; // 'Partial' wasn't in the default enum string but we can use it since it's String type
+            const totalPaidForRequest = requestPayments.reduce((sum, p) => sum + p.amount, 0);
+
+            // Get the FeeRequest amount to check if full
+            const feeRequest = await prisma.feeRequest.findUnique({ where: { id: parseInt(feeRequestId) } });
+
+            let newStatus = 'Pending';
+            if (totalPaidForRequest >= feeRequest.amount) {
+                newStatus = 'Paid';
+            } else if (totalPaidForRequest > 0) {
+                newStatus = 'Partial';
+            }
+
+            await prisma.studentFee.update({
+                where: { id: studentFeeRecord.id },
+                data: {
+                    status: newStatus,
+                    amountPaid: totalPaidForRequest
+                }
+            });
+
+            // Also return the new status
+            res.json({ payment, newStatus });
+        } else {
+            // Fallback if odd state
+            res.json({ payment });
         }
 
-        // Update student status
-        await prisma.student.update({
-            where: { id: parseInt(studentId) },
-            data: { feeStatus: newStatus }
-        });
-
-        res.json({ payment, newStatus });
 
     } catch (error) {
         console.error("Error adding payment:", error);

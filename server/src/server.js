@@ -3,6 +3,7 @@ const studentRoutes = require('./routes/studentRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const feeRequestRoutes = require('./routes/feeRequestRoutes');
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -22,8 +23,10 @@ app.get('/', (req, res) => {
 
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/batches', batchRoutes);
+app.use('/api/feerequests', feeRequestRoutes); // Corrected Route
 app.use('/api/students', studentRoutes);
 app.use('/api/attendance', attendanceRoutes);
+
 app.use('/api/payments', paymentRoutes);
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

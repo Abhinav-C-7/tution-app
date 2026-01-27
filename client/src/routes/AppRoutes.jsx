@@ -10,6 +10,7 @@ import BatchFees from "../components/batch/BatchFees";
 import BatchAttendance from "../components/batch/BatchAttendance";
 import BatchSettings from "../components/batch/BatchSettings";
 import BatchTabs from "../components/Tab";
+import BatchFeeRequest from "../components/batch/BatchFeeRequest";
 const AppRoutes = () => {
 
     return (
@@ -21,6 +22,7 @@ const AppRoutes = () => {
                 <Route path="/batches/create" element={<BatchCreationForm />} />
                 <Route path="/students/add" element={<AddStudent />} />
                 <Route element={<BatchTabs />}>
+                    <Route path="/batches/:id/fees/new" element={<BatchFeeRequest />} />
                     <Route path="/batches/:id" element={<BatchDetails />} />
                     <Route path="/batches/:id/fees" element={<BatchFees />} />
                     <Route path="/batches/:id/attendance" element={<BatchAttendance />} />
