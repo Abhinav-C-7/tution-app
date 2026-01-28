@@ -3,8 +3,8 @@
     "short_name": "TuitionApp",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#1976d2",
+    "background_color": "#F0FDFA",
+    "theme_color": "#0D9488",
     "icons": [
         {
             "src": "/icon-192.png",
