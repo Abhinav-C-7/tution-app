@@ -3,8 +3,7 @@ import BatchTable from './BatchTable';
 import Typography from '@mui/material/Typography';
 import api from '../../api/axios';
 import { useEffect, useState } from 'react';
-import CircularProgress from '@mui/material/CircularProgress';
-import BatchTabs from '../Tab';
+
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
