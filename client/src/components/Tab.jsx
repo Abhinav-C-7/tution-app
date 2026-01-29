@@ -56,28 +56,30 @@ const BatchTabs = () => {
                     <Tab label="Attendance" />
                     <Tab label="Settings" />
                 </Tabs>
-                <TextField
-                    placeholder="Search Student..."
-                    variant="outlined"
-                    size="small"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    sx={{
-                        mr: 2,
-                        width: '250px',
-                        '& .MuiOutlinedInput-root': {
-                            borderRadius: '20px',
-                            backgroundColor: 'background.paper',
-                        }
-                    }}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <SearchIcon color="action" />
-                            </InputAdornment>
-                        ),
-                    }}
-                />
+                {value !== 3 && (
+                    <TextField
+                        placeholder="Search Student..."
+                        variant="outlined"
+                        size="small"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        sx={{
+                            mr: 2,
+                            width: '250px',
+                            '& .MuiOutlinedInput-root': {
+                                borderRadius: '20px',
+                                backgroundColor: 'background.paper',
+                            }
+                        }}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon color="action" />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                )}
             </Box>
 
             <Outlet context={{ searchQuery }} />
