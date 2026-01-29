@@ -136,7 +136,7 @@ const BatchSettings = () => {
     if (!batch) return <Typography m={4}>Loading...</Typography>;
 
     return (
-        <Box sx={{ maxWidth: 800, mx: 'auto', pb: 4 }}>
+        <Box sx={{ maxWidth: 800, mx: '0', pb: 4, alignItems: 'start' }}>
             <Typography variant="h5" fontWeight="bold" gutterBottom mb={3}>
                 Settings
             </Typography>
