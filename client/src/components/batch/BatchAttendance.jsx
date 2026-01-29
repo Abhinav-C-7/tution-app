@@ -101,9 +101,7 @@ const BatchAttendance = () => {
         );
     };
 
-    if (loading) {
-        return <CircularProgress sx={{ mt: 4, ml: 4 }} />;
-    }
+    if (loading) return <Box display="flex" justifyContent="center" height="80vh" alignItems="center"><CircularProgress /></Box>;
 
     if (!batch) {
         return <Typography sx={{ m: 4 }}>Batch not found</Typography>;
