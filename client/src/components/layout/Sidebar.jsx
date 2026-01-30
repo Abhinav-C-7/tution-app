@@ -13,6 +13,8 @@ import ListItemText from '@mui/material/ListItemText';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import Groups2Icon from '@mui/icons-material/Groups2';
 import ManIcon from '@mui/icons-material/Man';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { useClerk } from "@clerk/clerk-react";
 import { useNavigate, Outlet, useLocation } from 'react-router-dom'; // 1. Import Router hooks
 const drawerWidth = 240;
 
@@ -24,6 +26,8 @@ export default function ClippedDrawer({ mobileOpen, handleDrawerTransitionEnd, h
         { text: 'Students', icon: <ManIcon />, path: "/students" },
         { text: 'Batches', icon: <Groups2Icon />, path: "/batches" },
     ];
+
+    const { signOut } = useClerk();
 
     const drawer = (
         <Box sx={{ overflow: 'auto', mt: 2 }}>
@@ -44,8 +48,18 @@ export default function ClippedDrawer({ mobileOpen, handleDrawerTransitionEnd, h
                         </ListItemButton>
                     </ListItem>
                 ))}
+
+                <Divider sx={{ my: 1 }} />
+
+                <ListItem disablePadding>
+                    <ListItemButton onClick={() => signOut(() => navigate('/login'))}>
+                        <ListItemIcon>
+                            <LogoutIcon color="error" />
+                        </ListItemIcon>
+                        <ListItemText primary="Logout" sx={{ color: 'error.main' }} />
+                    </ListItemButton>
+                </ListItem>
             </List>
-            <Divider />
         </Box>
     );
 

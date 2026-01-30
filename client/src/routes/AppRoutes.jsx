@@ -11,10 +11,15 @@ import BatchAttendance from "../components/batch/BatchAttendance";
 import BatchSettings from "../components/batch/BatchSettings";
 import BatchTabs from "../components/Tab";
 import BatchFeeRequest from "../components/batch/BatchFeeRequest";
+import LoginPage from "../pages/LoginPage";
+import RegisterPage from "../pages/RegisterPage";
+
 const AppRoutes = () => {
 
     return (
         <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
             <Route element={<AppLayout />}>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/batches" element={<BatchPage />} />

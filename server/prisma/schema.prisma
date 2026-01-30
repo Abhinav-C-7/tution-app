@@ -8,20 +8,64 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model Batch {
-  id   Int    @id @default(autoincrement())
-  name String
-
-  admissionFee Int? @default(0)
-
-  subjects String?
-  schedule String?
-
+// =================================================================
+// MULTI-TENANCY MODELS
+// =================================================================
+model Tenant {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  // Add other tenant-specific settings here, like subscription status, etc.
   createdAt DateTime @default(now())
 
   // Relations
+  users       UserTenantRole[]
+  batches     Batch[]
   students    Student[]
-  feeRequests FeeRequest[] // 👈 UPDATED: Tracks history of all fee requests (Jan, Feb...)
+  feeRequests FeeRequest[]
+  studentFees StudentFee[]
+  payments    Payment[]
+  attendances Attendance[]
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  clerkId   String   @unique
+  createdAt DateTime @default(now())
+
+  // Relations
+  tenants UserTenantRole[]
+}
+
+model UserTenantRole {
+  userId   Int
+  tenantId Int
+  role     String // e.g., 'ADMIN', 'TUTOR', 'VIEWER'
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@id([userId, tenantId])
+}
+
+// =================================================================
+
+model Batch {
+  id           Int      @id @default(autoincrement())
+  name         String
+  admissionFee Int?     @default(0)
+  subjects     String?
+  schedule     String?
+  createdAt    DateTime @default(now())
+
+  // Multi-tenancy
+  tenantId Int
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Relations
+  students    Student[]
+  feeRequests FeeRequest[]
   payments    Payment[]
   attendance  Attendance[]
 }
@@ -34,61 +78,64 @@ model Student {
   parentPhone String
   dob         DateTime?
   joinedAt    DateTime  @default(now())
-
-  // Note: Global discount. Can be applied when generating a new FeeRequest.
-  discount Int @default(0)
+  discount    Int       @default(0)
 
   batchId Int
   batch   Batch @relation(fields: [batchId], references: [id], onDelete: Cascade)
 
+  // Multi-tenancy
+  tenantId Int
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
   // Relations
-  feeRecords  StudentFee[] // 👈 History of status (Jan: Paid, Feb: Pending)
+  feeRecords  StudentFee[]
   payments    Payment[]
   attendances Attendance[]
 }
 
-// ---------------------------------------------------------
-// NEW: Represents a "Bill" or "Request" (e.g., January 2026)
-// ---------------------------------------------------------
 model FeeRequest {
   id        Int      @id @default(autoincrement())
-  name      String // e.g. "January Fees" or "Exam Fees"
-  amount    Int // The standard amount for this request
+  name      String
+  amount    Int
   dueDate   DateTime
   createdAt DateTime @default(now())
 
   batchId Int
   batch   Batch @relation(fields: [batchId], references: [id], onDelete: Cascade)
 
+  // Multi-tenancy
+  tenantId Int
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
   // Links
-  studentFees StudentFee[] // The specific status of every student for this request
-  payments    Payment[] // Optional: Know which request a payment belongs to
+  studentFees StudentFee[]
+  payments    Payment[]
 }
 
-// ---------------------------------------------------------
-// NEW: Represents the Status of ONE student for ONE request
-// ---------------------------------------------------------
 model StudentFee {
   id         Int     @id @default(autoincrement())
-  status     String  @default("Pending") // 'Pending', 'Paid', 'Partial'
-  amountPaid Int     @default(0) // Helpful if they pay in 2 installments
-  remarks    String? // e.g. "Late fee waived"
+  status     String  @default("Pending")
+  amountPaid Int     @default(0)
+  remarks    String?
 
   studentId Int
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-  // 👈 UPDATED: Renamed relation
   feeRequestId Int
   feeRequest   FeeRequest @relation(fields: [feeRequestId], references: [id], onDelete: Cascade)
 
-  @@unique([studentId, feeRequestId]) // Prevent duplicate records for same student/request
+  // Multi-tenancy
+  tenantId Int
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, feeRequestId])
 }
 
 model Payment {
   id      Int      @id @default(autoincrement())
   amount  Int
   date    DateTime @default(now())
-  remarks String? // e.g., 'Cash', 'UPI'
+  remarks String?
 
   studentId Int
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
@@ -96,21 +143,28 @@ model Payment {
   batchId Int
   batch   Batch @relation(fields: [batchId], references: [id], onDelete: Cascade)
 
-  // Optional: If you want to link a payment explicitly to "January Fees"
   feeRequestId Int
   feeRequest   FeeRequest? @relation(fields: [feeRequestId], references: [id])
+
+  // Multi-tenancy
+  tenantId Int
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 }
 
 model Attendance {
   id     Int      @id @default(autoincrement())
   date   DateTime @default(now())
-  status String // 'Present', 'Absent', 'Late'
+  status String
 
   studentId Int
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   batchId Int
   batch   Batch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  // Multi-tenancy
+  tenantId Int
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([batchId, date])
 }
