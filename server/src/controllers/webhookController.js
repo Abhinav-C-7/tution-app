@@ -20,11 +20,11 @@ const handleWebhook = async (req, res) => {
         return res.status(400).send('Error occured -- no svix headers');
     }
 
-    // Get the body
+    // Get the body (raw buffer → string)
     const payload = req.body;
-    const body = payload.toString();
+    const body = payload.toString('utf8');
 
-    // Create a new Svix instance with your secret.
+    // Create a new Svix instance with your secret
     const wh = new Webhook(WEBHOOK_SECRET);
 
     let evt;
@@ -41,17 +41,18 @@ const handleWebhook = async (req, res) => {
         return res.status(400).send('Error occured');
     }
 
-    // Do something with the payload
-    // For this guide, you simply log the payload to the console
-    const { id } = evt.data;
     const eventType = evt.type;
-
 
     if (eventType === 'user.created') {
         const { id, email_addresses, first_name, last_name, username } = evt.data;
         const email = email_addresses[0].email_address;
-        const name = first_name && last_name ? `${first_name} ${last_name}` : username || email;
-        const tenantName = username || email.split('@')[0];
+        const name =
+            first_name && last_name
+                ? `${first_name} ${last_name}`
+                : username || email;
+
+        const tenantName =
+            username || email.split('@')[0] || name.replace(/\s+/g, '-').toLowerCase();
 
         try {
             // Create Tenant
@@ -75,12 +76,11 @@ const handleWebhook = async (req, res) => {
                 data: {
                     userId: user.id,
                     tenantId: tenant.id,
-                    role: 'ADMIN', // Default role for new signups
+                    role: 'ADMIN',
                 }
             });
 
             console.log(`User ${email} and Tenant ${tenantName} created successfully.`);
-
         } catch (error) {
             console.error('Error saving user/tenant to database:', error);
             return res.status(500).json({ error: 'Database error' });
@@ -91,6 +91,6 @@ const handleWebhook = async (req, res) => {
         success: true,
         message: 'Webhook received'
     });
-}
+};
 
 module.exports = { handleWebhook };
