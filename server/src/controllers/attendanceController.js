@@ -8,7 +8,8 @@ const getBatchAttendance = async (req, res) => {
         const { date } = req.query;
 
         const whereClause = {
-            batchId: parseInt(batchId)
+            batchId: parseInt(batchId),
+            tenantId: req.tenantId
         };
 
         if (date) {
@@ -67,7 +68,8 @@ const markBatchAttendance = async (req, res) => {
                     batchId: parseInt(batchId),
                     studentId: record.studentId,
                     date: formattedDate,
-                    status: record.status
+                    status: record.status,
+                    tenantId: req.tenantId
                 }
             });
         });
@@ -78,6 +80,7 @@ const markBatchAttendance = async (req, res) => {
             prisma.attendance.deleteMany({
                 where: {
                     batchId: parseInt(batchId),
+                    tenantId: req.tenantId,
                     date: {
                         equals: formattedDate
 

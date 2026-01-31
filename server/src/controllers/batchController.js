@@ -8,6 +8,9 @@ const prisma = new PrismaClient();
 const getBatches = async (req, res) => {
     try {
         const batches = await prisma.batch.findMany({
+            where: {
+                tenantId: req.tenantId
+            },
             include: {
                 _count: {
                     select: { students: true }
@@ -30,7 +33,8 @@ const getBatchDetails = async (req, res) => {
 
         const batch = await prisma.batch.findUnique({
             where: {
-                id: parseInt(id)
+                id: parseInt(id),
+                tenantId: req.tenantId
             },
             include: {
                 students: true
@@ -57,7 +61,7 @@ const createBatch = async (req, res) => {
                 name,
                 subjects,
                 schedule,
-
+                tenantId: req.tenantId
             },
         });
         res.json(batch);
@@ -82,7 +86,7 @@ const updateBatch = async (req, res) => {
         if (customDuration !== undefined) updateData.customDuration = customDuration ? parseInt(customDuration) : null;
 
         const batch = await prisma.batch.update({
-            where: { id: parseInt(id) },
+            where: { id: parseInt(id), tenantId: req.tenantId },
             data: updateData,
         });
         res.json(batch);
@@ -96,7 +100,7 @@ const deleteBatch = async (req, res) => {
     try {
         const { id } = req.params;
         await prisma.batch.delete({
-            where: { id: parseInt(id) }
+            where: { id: parseInt(id), tenantId: req.tenantId }
         });
         res.json({ message: "Batch deleted successfully" });
     } catch (error) {

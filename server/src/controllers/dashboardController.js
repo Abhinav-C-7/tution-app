@@ -7,10 +7,10 @@ const getDashboardStats = async (req, res) => {
     try {
         // 1. Run all 3 queries in parallel for speed
         const [studentCount, batchCount, pendingCount] = await Promise.all([
-            prisma.student.count(),
-            prisma.batch.count(),
+            prisma.student.count({ where: { tenantId: req.tenantId } }),
+            prisma.batch.count({ where: { tenantId: req.tenantId } }),
             prisma.studentFee.count({
-                where: { status: 'Pending' }
+                where: { status: 'Pending', tenantId: req.tenantId }
             })
         ]);
 
