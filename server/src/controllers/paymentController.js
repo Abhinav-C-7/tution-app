@@ -12,7 +12,8 @@ const addPayment = async (req, res) => {
                 remarks,
                 studentId: parseInt(studentId),
                 batchId: parseInt(batchId),
-                feeRequestId: parseInt(feeRequestId)
+                feeRequestId: parseInt(feeRequestId),
+                tenantId: req.tenantId
             }
         });
 
@@ -77,7 +78,7 @@ const getBatchPayments = async (req, res) => {
     try {
         const { batchId } = req.params;
         const payments = await prisma.payment.findMany({
-            where: { batchId: parseInt(batchId) },
+            where: { batchId: parseInt(batchId), tenantId: req.tenantId },
             include: {
                 student: {
                     select: { name: true, id: true }
@@ -96,7 +97,7 @@ const getStudentPayments = async (req, res) => {
     try {
         const { studentId } = req.params;
         const payments = await prisma.payment.findMany({
-            where: { studentId: parseInt(studentId) },
+            where: { studentId: parseInt(studentId), tenantId: req.tenantId },
             orderBy: { date: 'desc' }
         });
         res.json(payments);

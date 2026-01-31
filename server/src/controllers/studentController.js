@@ -4,6 +4,7 @@ const prisma = new PrismaClient();
 const getStudents = async (req, res) => {
     try {
         const students = await prisma.student.findMany({
+            where: { tenantId: req.tenantId },
             include: { batch: true }
         });
         res.json(students);
@@ -23,7 +24,9 @@ const addStudent = async (req, res) => {
                 phone,
                 parentName,
                 parentPhone,
-                batchId: parseInt(batchId)
+                parentPhone,
+                batchId: parseInt(batchId),
+                tenantId: req.tenantId
             }
         })
         res.json(newStudent);
@@ -42,7 +45,7 @@ const updateStudent = async (req, res) => {
         if (discount !== undefined) updateData.discount = parseInt(discount);
 
         const student = await prisma.student.update({
-            where: { id: parseInt(id) },
+            where: { id: parseInt(id), tenantId: req.tenantId },
             data: updateData,
         });
         res.json(student);
@@ -56,7 +59,7 @@ const deleteStudent = async (req, res) => {
     try {
         const { id } = req.params;
         await prisma.student.delete({
-            where: { id: parseInt(id) }
+            where: { id: parseInt(id), tenantId: req.tenantId }
         });
         res.json({ message: "Student deleted successfully" });
     } catch (error) {

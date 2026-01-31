@@ -20,13 +20,16 @@ const createFeeRequest = async (req, res) => {
                 dueDate,
                 batch: {
                     connect: { id: batchId }
+                },
+                tenant: {
+                    connect: { id: req.tenantId }
                 }
             }
         });
 
         // This is a crucial step: Create a StudentFee record for every student in the batch
         const studentsInBatch = await prisma.student.findMany({
-            where: { batchId: batchId }
+            where: { batchId: batchId, tenantId: req.tenantId }
         });
 
         for (const student of studentsInBatch) {
@@ -36,6 +39,7 @@ const createFeeRequest = async (req, res) => {
                     feeRequestId: newFeeRequest.id,
                     status: 'Pending',
                     amountPaid: 0,
+                    tenantId: req.tenantId
                 }
             });
         }
@@ -55,7 +59,7 @@ const getFeeRequestsByBatch = async (req, res) => {
 
     try {
         const feeRequests = await prisma.feeRequest.findMany({
-            where: { batchId: parseInt(batchId) },
+            where: { batchId: parseInt(batchId), tenantId: req.tenantId },
             include: {
                 studentFees: {
                     include: {
