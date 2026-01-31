@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-// CHANGE 1: Import Clerk hook and Router hook
 import { useSignIn, useUser } from "@clerk/clerk-react";
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 
@@ -14,32 +13,29 @@ import {
     Container,
     InputAdornment,
     IconButton,
-    Alert // CHANGE 2: Import Alert to show errors
+    Alert
 } from '@mui/material';
-import { Visibility, VisibilityOff, Email, Lock } from '@mui/icons-material';
+import { Visibility, VisibilityOff, Email, Lock, MarkEmailRead } from '@mui/icons-material';
 
 const LoginPage = () => {
-    // CHANGE 3: Initialize Clerk and Router
     const { isLoaded, signIn, setActive } = useSignIn();
     const { isSignedIn } = useUser();
     const navigate = useNavigate();
+
+    const [verifying, setVerifying] = useState(false);
+    const [code, setCode] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState("");
+    const [formData, setFormData] = useState({
+        email: '',
+        password: ''
+    });
 
     useEffect(() => {
         if (isSignedIn) {
             navigate("/");
         }
     }, [isSignedIn, navigate]);
-
-    const [showPassword, setShowPassword] = useState(false);
-
-    // CHANGE 4: Add Error State
-    // We need this to show "Wrong Password" messages to the user
-    const [error, setError] = useState("");
-
-    const [formData, setFormData] = useState({
-        email: '',
-        password: ''
-    });
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -49,48 +45,101 @@ const LoginPage = () => {
         }));
     };
 
-    const handleClickShowPassword = () => setShowPassword((show) => !show);
+    const handleClickShowPassword = () => setShowPassword(show => !show);
 
-    // CHANGE 5: The Real Login Logic
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(""); // Clear old errors
+        setError("");
 
         if (!isLoaded) return;
 
         try {
-            // A. Send data to Clerk
             const result = await signIn.create({
                 identifier: formData.email,
                 password: formData.password,
             });
 
-            // B. If success, set the session active
             if (result.status === "complete") {
                 await setActive({ session: result.createdSessionId });
-                navigate("/"); // Redirect to Dashboard
+                navigate("/");
+            } else if (result.status === "needs_second_factor") {
+                setVerifying(true);
             } else {
                 console.log(result);
+                setError("An unexpected error occurred.");
             }
         } catch (err) {
-            // C. If failure, show the error message
             console.error("Login error:", err);
-            // Clerk returns errors in an array, we grab the first one
             setError(err.errors?.[0]?.longMessage || "Something went wrong");
         }
     };
 
+    const handleVerification = async (e) => {
+        e.preventDefault();
+        setError("");
+
+        if (!isLoaded) return;
+
+        try {
+            const result = await signIn.attemptSecondFactor({
+                strategy: "email_code",
+                code,
+            });
+
+            if (result.status === "complete") {
+                await setActive({ session: result.createdSessionId });
+                navigate("/");
+            } else {
+                console.error(JSON.stringify(result, null, 2));
+                setError("Verification incomplete. Please contact support.");
+            }
+        } catch (err) {
+            console.error("Verification error:", err);
+            setError(err.errors?.[0]?.longMessage || "Invalid verification code.");
+        }
+    };
+
+    if (verifying) {
+        return (
+            <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', p: 2 }}>
+                <Container maxWidth="xs">
+                    <Card sx={{ p: 2 }}>
+                        <CardContent>
+                            <Box sx={{ mb: 3, textAlign: 'center' }}>
+                                <MarkEmailRead sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
+                                <Typography variant="h5" color="primary" gutterBottom fontWeight="bold">
+                                    Check your Email
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    Enter the verification code sent to your email.
+                                </Typography>
+                            </Box>
+
+                            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
+                            <form onSubmit={handleVerification}>
+                                <TextField
+                                    fullWidth
+                                    label="Verification Code"
+                                    value={code}
+                                    onChange={(e) => setCode(e.target.value)}
+                                    margin="normal"
+                                    required
+                                    autoFocus
+                                />
+                                <Button fullWidth variant="contained" size="large" type="submit" sx={{ mt: 2, mb: 2 }}>
+                                    Verify
+                                </Button>
+                            </form>
+                        </CardContent>
+                    </Card>
+                </Container>
+            </Box>
+        );
+    }
+
     return (
-        <Box
-            sx={{
-                minHeight: '100vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: 'background.default',
-                p: 2
-            }}
-        >
+        <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', p: 2 }}>
             <Container maxWidth="xs">
                 <Card sx={{ p: 2 }}>
                     <CardContent>
@@ -103,12 +152,7 @@ const LoginPage = () => {
                             </Typography>
                         </Box>
 
-                        {/* CHANGE 6: Display the Error Alert */}
-                        {error && (
-                            <Alert severity="error" sx={{ mb: 2 }}>
-                                {error}
-                            </Alert>
-                        )}
+                        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
                         <form onSubmit={handleSubmit}>
                             <TextField
@@ -146,11 +190,7 @@ const LoginPage = () => {
                                     ),
                                     endAdornment: (
                                         <InputAdornment position="end">
-                                            <IconButton
-                                                aria-label="toggle password visibility"
-                                                onClick={handleClickShowPassword}
-                                                edge="end"
-                                            >
+                                            <IconButton onClick={handleClickShowPassword} edge="end">
                                                 {showPassword ? <VisibilityOff /> : <Visibility />}
                                             </IconButton>
                                         </InputAdornment>
@@ -159,19 +199,12 @@ const LoginPage = () => {
                             />
 
                             <Box sx={{ mt: 1, mb: 2, textAlign: 'right' }}>
-                                {/* Note: You need a Forgot Password route later */}
                                 <Link component={RouterLink} to="/forgot-password" variant="body2" underline="hover">
                                     Forgot Password?
                                 </Link>
                             </Box>
 
-                            <Button
-                                fullWidth
-                                variant="contained"
-                                size="large"
-                                type="submit"
-                                sx={{ mb: 2 }}
-                            >
+                            <Button fullWidth variant="contained" size="large" type="submit" sx={{ mb: 2 }}>
                                 Sign In
                             </Button>
 
