@@ -22,6 +22,7 @@ const BatchPage = () => {
   useEffect(() => {
     const fetchBatches = async () => {
       try {
+        console.log('BatchPage: Attempting to fetch batches...'); // <-- ADD THIS
         const response = await api.get('/batches');
         setBatches(response.data);
       } catch (err) {

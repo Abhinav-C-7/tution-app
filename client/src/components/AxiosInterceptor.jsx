@@ -7,10 +7,12 @@ const AxiosInterceptor = ({ children }) => {
     const [isInterceptorSetup, setIsInterceptorSetup] = useState(false);
 
     useEffect(() => {
+        console.log('AxiosInterceptor: useEffect is running. Clerk loaded:', isLoaded); // <-- ADD THIS
         if (!isLoaded) return;
 
         const interceptor = api.interceptors.request.use(
             async (config) => {
+                console.log('AxiosInterceptor: Intercepting a request to', config.url); // <-- ADD THIS
                 const token = await getToken();
                 if (token) {
                     config.headers.Authorization = `Bearer ${token}`;
