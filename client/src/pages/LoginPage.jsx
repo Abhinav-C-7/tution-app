@@ -47,6 +47,9 @@ const LoginPage = () => {
 
     const handleClickShowPassword = () => setShowPassword(show => !show);
 
+    // ========================
+    // LOGIN STEP
+    // ========================
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
@@ -62,18 +65,29 @@ const LoginPage = () => {
             if (result.status === "complete") {
                 await setActive({ session: result.createdSessionId });
                 navigate("/");
-            } else if (result.status === "needs_second_factor") {
-                setVerifying(true);
-            } else {
-                console.log(result);
-                setError("An unexpected error occurred.");
+                return;
             }
+
+            if (result.status === "needs_second_factor") {
+                // 🔥 THIS WAS MISSING — SEND EMAIL CODE
+                await signIn.prepareSecondFactor({
+                    strategy: "email_code",
+                });
+
+                setVerifying(true);
+                return;
+            }
+
+            setError("Unexpected authentication state.");
         } catch (err) {
             console.error("Login error:", err);
-            setError(err.errors?.[0]?.longMessage || "Something went wrong");
+            setError(err.errors?.[0]?.longMessage || "Invalid email or password");
         }
     };
 
+    // ========================
+    // VERIFY EMAIL CODE STEP
+    // ========================
     const handleVerification = async (e) => {
         e.preventDefault();
         setError("");
@@ -89,16 +103,19 @@ const LoginPage = () => {
             if (result.status === "complete") {
                 await setActive({ session: result.createdSessionId });
                 navigate("/");
-            } else {
-                console.error(JSON.stringify(result, null, 2));
-                setError("Verification incomplete. Please contact support.");
+                return;
             }
+
+            setError("Verification failed. Try again.");
         } catch (err) {
             console.error("Verification error:", err);
-            setError(err.errors?.[0]?.longMessage || "Invalid verification code.");
+            setError(err.errors?.[0]?.longMessage || "Invalid verification code");
         }
     };
 
+    // ========================
+    // VERIFICATION UI
+    // ========================
     if (verifying) {
         return (
             <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', p: 2 }}>
@@ -107,11 +124,11 @@ const LoginPage = () => {
                         <CardContent>
                             <Box sx={{ mb: 3, textAlign: 'center' }}>
                                 <MarkEmailRead sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
-                                <Typography variant="h5" color="primary" gutterBottom fontWeight="bold">
+                                <Typography variant="h5" fontWeight="bold">
                                     Check your Email
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">
-                                    Enter the verification code sent to your email.
+                                    Enter the verification code sent to your email
                                 </Typography>
                             </Box>
 
@@ -127,7 +144,13 @@ const LoginPage = () => {
                                     required
                                     autoFocus
                                 />
-                                <Button fullWidth variant="contained" size="large" type="submit" sx={{ mt: 2, mb: 2 }}>
+                                <Button
+                                    fullWidth
+                                    variant="contained"
+                                    size="large"
+                                    type="submit"
+                                    sx={{ mt: 2 }}
+                                >
                                     Verify
                                 </Button>
                             </form>
@@ -138,13 +161,16 @@ const LoginPage = () => {
         );
     }
 
+    // ========================
+    // LOGIN UI
+    // ========================
     return (
         <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', p: 2 }}>
             <Container maxWidth="xs">
                 <Card sx={{ p: 2 }}>
                     <CardContent>
                         <Box sx={{ mb: 3, textAlign: 'center' }}>
-                            <Typography variant="h4" color="primary" gutterBottom fontWeight="bold">
+                            <Typography variant="h4" fontWeight="bold">
                                 Welcome Back
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
@@ -199,19 +225,19 @@ const LoginPage = () => {
                             />
 
                             <Box sx={{ mt: 1, mb: 2, textAlign: 'right' }}>
-                                <Link component={RouterLink} to="/forgot-password" variant="body2" underline="hover">
+                                <Link component={RouterLink} to="/forgot-password" variant="body2">
                                     Forgot Password?
                                 </Link>
                             </Box>
 
-                            <Button fullWidth variant="contained" size="large" type="submit" sx={{ mb: 2 }}>
+                            <Button fullWidth variant="contained" size="large" type="submit">
                                 Sign In
                             </Button>
 
-                            <Box sx={{ textAlign: 'center' }}>
-                                <Typography variant="body2" color="text.secondary">
+                            <Box sx={{ mt: 2, textAlign: 'center' }}>
+                                <Typography variant="body2">
                                     Don't have an account?{' '}
-                                    <Link component={RouterLink} to="/register" fontWeight="bold" underline="hover">
+                                    <Link component={RouterLink} to="/register" fontWeight="bold">
                                         Sign Up
                                     </Link>
                                 </Typography>
