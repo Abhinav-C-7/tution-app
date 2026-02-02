@@ -21,8 +21,8 @@ module.exports = {
         PORT: 5000,
         DATABASE_URL: 'postgresql://tution_app_user:testpass123@localhost:5432/tution_app_db',
         CLERK_SECRET_KEY: 'sk_test_PYJsPAybFA8Fbx77bxNWb3VrPitZxB15OIY6hHk2kZ',
-     
-        CLERK_WEBHOOK_SECRET:'whsec_0hFHRigTqDq/JVkZ4avODXTEiRJWLnP4'
+        CLERK_PUBLISHABLE_KEY: 'pk_test_PYJsPAybFA8Fbx77bxNWb3VrPitZxB15OIY6hHk2kZ',
+        CLERK_WEBHOOK_SECRET: 'whsec_0hFHRigTqDq/JVkZ4avODXTEiRJWLnP4'
       }
     }
   ]

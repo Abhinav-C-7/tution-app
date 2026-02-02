@@ -3,7 +3,7 @@ import Text from "../components/Text";
 const Logo = () => {
   return (
     <div>
-         <Text variant="logo" className="text-white p-2">myTution</Text>
+      <Text variant="logo" className="text-white p-2">CourseCore</Text>
     </div>
   );
 };

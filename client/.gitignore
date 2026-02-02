@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+ecosystem.config.js
+.env
+.env.example
+.env.production
+.env.development

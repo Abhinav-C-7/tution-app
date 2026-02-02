@@ -19,6 +19,7 @@ import CheckIcon from '@mui/icons-material/Check';
 
 export default function AddStudent() {
 
+    const navigate = useNavigate();
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [batches, setBatches] = useState([]);
     const { id } = useParams(); // Get batch ID from URL if present();
