@@ -5,7 +5,7 @@ import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import api from '../../api/axios';
-
+import { useNavigate } from 'react-router-dom';
 export default function BatchCreationForm() {
     // 1. Setup the hook
     const {
@@ -15,6 +15,8 @@ export default function BatchCreationForm() {
         formState: { errors }
     } = useForm();
 
+    const navigate = useNavigate();
+
     // 2. The Submit Handler (Only runs if validation passes)
     const onSubmit = async (data) => {
         // 'data' is automatically an object: { name: "...", fee: "..." }
@@ -22,7 +24,7 @@ export default function BatchCreationForm() {
             const response = await api.post('/batches', {
                 ...data         // Spread all fields (name, subjects, schedule  
             });
-            alert("Batch Created!");
+            navigate("/batches");
             console.log(response.data);
         } catch (error) {
             console.error(error);

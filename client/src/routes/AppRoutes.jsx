@@ -13,6 +13,7 @@ import BatchTabs from "../components/Tab";
 import BatchFeeRequest from "../components/batch/BatchFeeRequest";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
+import Profile from "../pages/Profile";
 
 const AppRoutes = () => {
 
@@ -22,6 +23,7 @@ const AppRoutes = () => {
             <Route path="/register" element={<RegisterPage />} />
             <Route element={<AppLayout />}>
                 <Route path="/" element={<Dashboard />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="/batches" element={<BatchPage />} />
                 <Route path="/students" element={<StudentPage />} />
                 <Route path="/batches/create" element={<BatchCreationForm />} />

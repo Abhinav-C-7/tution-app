@@ -17,6 +17,7 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
+import { useNavigate } from 'react-router-dom';
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -61,6 +62,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 export default function PrimarySearchAppBar({ handleDrawerToggle, drawerWidth }) {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
+    const navigate = useNavigate();
 
     const isMenuOpen = Boolean(anchorEl);
     const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -76,6 +78,11 @@ export default function PrimarySearchAppBar({ handleDrawerToggle, drawerWidth })
     const handleMenuClose = () => {
         setAnchorEl(null);
         handleMobileMenuClose();
+    };
+
+    const handleProfileClick = () => {
+        handleMenuClose();
+        navigate('/profile');
     };
 
     const handleMobileMenuOpen = (event) => {
@@ -99,7 +106,7 @@ export default function PrimarySearchAppBar({ handleDrawerToggle, drawerWidth })
             open={isMenuOpen}
             onClose={handleMenuClose}
         >
-            <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+            <MenuItem onClick={handleProfileClick}>Profile</MenuItem>
             <MenuItem onClick={handleMenuClose}>My account</MenuItem>
         </Menu>
     );
@@ -175,7 +182,7 @@ export default function PrimarySearchAppBar({ handleDrawerToggle, drawerWidth })
                         component="div"
                         sx={{ display: { xs: 'none', sm: 'block' } }}
                     >
-                        EduMate
+                        CourseCore
                     </Typography>
 
                     <Box sx={{ flexGrow: 1 }} />

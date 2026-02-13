@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -17,7 +17,10 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import CheckIcon from '@mui/icons-material/Check';
 
+
 export default function AddStudent() {
+    const location = useLocation();
+
 
     const navigate = useNavigate();
     const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -80,7 +83,14 @@ export default function AddStudent() {
             setTimeout(() => {
 
                 const targetBatchId = id || data.batch;
-                navigate(`/batches/${targetBatchId}`);
+                const currentPath = location.pathname;
+                console.log(currentPath);
+                if (currentPath === "/students/add") {
+                    navigate("/students");
+                }
+                else {
+                    navigate(`/batches/${targetBatchId}`);
+                }
             }, 2000);
 
 
