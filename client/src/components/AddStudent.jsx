@@ -23,6 +23,7 @@ export default function AddStudent() {
 
 
     const navigate = useNavigate();
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [batches, setBatches] = useState([]);
     const { id } = useParams(); // Get batch ID from URL if present();
@@ -70,6 +71,8 @@ export default function AddStudent() {
     }, [id, setValue]);
 
     const onSubmit = async (data) => {
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         try {
             const response = await api.post('/students', {
                 ...data,
@@ -97,6 +100,7 @@ export default function AddStudent() {
         } catch (error) {
             console.error(error);
             alert("Failed");
+            setIsSubmitting(false);
         }
     }
 
@@ -273,9 +277,10 @@ export default function AddStudent() {
                                 type="submit"
                                 variant="contained"
                                 size="large"
+                                disabled={isSubmitting}
                                 sx={{ px: 4 }}
                             >
-                                Register Student
+                                {isSubmitting ? "Registering..." : "Register Student"}
                             </Button>
                         </Stack>
 
