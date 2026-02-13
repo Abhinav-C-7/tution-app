@@ -14,6 +14,7 @@ import BatchFeeRequest from "../components/batch/BatchFeeRequest";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import Profile from "../pages/Profile";
+import MyAccount from "../pages/MyAccount";
 
 const AppRoutes = () => {
 
@@ -24,6 +25,7 @@ const AppRoutes = () => {
             <Route element={<AppLayout />}>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/account" element={<MyAccount />} />
                 <Route path="/batches" element={<BatchPage />} />
                 <Route path="/students" element={<StudentPage />} />
                 <Route path="/batches/create" element={<BatchCreationForm />} />

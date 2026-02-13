@@ -85,6 +85,11 @@ export default function PrimarySearchAppBar({ handleDrawerToggle, drawerWidth })
         navigate('/profile');
     };
 
+    const handleAccountClick = () => {
+        handleMenuClose();
+        navigate('/account');
+    };
+
     const handleMobileMenuOpen = (event) => {
         setMobileMoreAnchorEl(event.currentTarget);
     };
@@ -107,7 +112,7 @@ export default function PrimarySearchAppBar({ handleDrawerToggle, drawerWidth })
             onClose={handleMenuClose}
         >
             <MenuItem onClick={handleProfileClick}>Profile</MenuItem>
-            <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+            <MenuItem onClick={handleAccountClick}>My account</MenuItem>
         </Menu>
     );
 
